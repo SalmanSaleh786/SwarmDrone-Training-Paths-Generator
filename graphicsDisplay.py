@@ -1,5 +1,5 @@
 # graphicsDisplay.py
-
+import graphicsUtils
 from graphicsUtils import *
 import math, time
 from game import Directions
@@ -187,9 +187,12 @@ class PacmanGraphics:
         self.distributionImages = dist
 
     def drawStaticObjects(self, state):
+        graphicsUtils.image_dict = {}
         layout = self.layout
         self.drawWalls(layout.walls)
         self.food = self.drawFood(layout.food)
+
+        self.fire = self.drawFire(layout.fire)
         self.capsules = self.drawCapsules(layout.capsules)
         refresh()
 
@@ -262,7 +265,7 @@ class PacmanGraphics:
             outlineColor = TEAM_COLORS[index % 2]
             fillColor = GHOST_COLORS[index]
             width = PACMAN_CAPTURE_OUTLINE_WIDTH
-        return image(position,"agent", "../resources/main.png");
+        return image(position,"agent", 3, "../resources/main.png");
         #return [circle(screen_point, PACMAN_SCALE * self.gridSize,
         #               fillColor = fillColor, outlineColor = outlineColor,
         #               endpoints = endpoints,
@@ -323,7 +326,7 @@ class PacmanGraphics:
 
         #dir = self.getDirection(ghost)
         (screen_x, screen_y) = (self.to_screen(pos))
-        return image((screen_x, screen_y),"redAgent", "../resources/redAgent.png");
+        return image((screen_x, screen_y),"redAgent", 3, "../resources/redAgent.png");
         #
         # coords = []
         # for (x, y) in GHOST_SHAPE:
@@ -530,7 +533,19 @@ class PacmanGraphics:
                 else:
                     imageRow.append(None)
         return foodImages
-
+    def drawFire(self, fireMatrix):
+        fireImages = []
+        for xNum, x in enumerate(fireMatrix):
+            imageRow = []
+            fireImages.append(imageRow)
+            for yNum, cell in enumerate(x):
+                if cell:  # There's fire here
+                    screen = self.to_screen((xNum, yNum))
+                    dot = image(screen, "fire", 10,"../resources/fire.png")
+                    imageRow.append(dot)
+                else:
+                    imageRow.append(None)
+        return fireImages
     def drawCapsules(self, capsules ):
         capsuleImages = {}
         for capsule in capsules:

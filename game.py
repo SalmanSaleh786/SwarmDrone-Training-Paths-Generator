@@ -357,6 +357,7 @@ class GameStateData:
         Generates a new data packet by copying information from its predecessor.
         """
         if prevState != None:
+            self.fire = prevState.fire.shallowCopy()
             self.food = prevState.food.shallowCopy()
             self.capsules = prevState.capsules[:]
             self.agentStates = self.copyAgentStates( prevState.agentStates )
@@ -375,6 +376,7 @@ class GameStateData:
     def deepCopy( self ):
         state = GameStateData( self )
         state.food = self.food.deepCopy()
+        state.fire=self.fire.deepCopy()
         state.layout = self.layout.deepCopy()
         state._agentMoved = self._agentMoved
         state._foodEaten = self._foodEaten
@@ -396,6 +398,7 @@ class GameStateData:
         # TODO Check for type of other
         if not self.agentStates == other.agentStates: return False
         if not self.food == other.food: return False
+        if not self.fire == other.fire: return False
         if not self.capsules == other.capsules: return False
         if not self.score == other.score: return False
         return True
@@ -466,9 +469,10 @@ class GameStateData:
 
     def initialize( self, layout, numGhostAgents ):
         """
-        Creates an initial game state from a layout array (see layout.py).
+        Creates an initial game state from a layout array (see localLayout.py).
         """
         self.food = layout.food.copy()
+        self.fire = layout.fire.copy()
         #self.capsules = []
         self.capsules = layout.capsules[:]
         self.layout = layout

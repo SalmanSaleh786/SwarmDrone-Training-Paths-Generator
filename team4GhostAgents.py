@@ -25,11 +25,9 @@ class team4GhostAgents( Agent ): # defines getAction and getDistribution
         self.index = index
 
     def getAction( self, state ):
-
         if self.first:
             self.first = False
             self.WallsGrid = state.getWalls()
-
             self.WallArray = np.zeros((self.WallsGrid.width, self.WallsGrid.height), dtype=bool)
             for x in range(len(self.WallArray)):
                 for y in range(len(self.WallArray[1])):
@@ -57,7 +55,7 @@ class team4GhostAgents( Agent ): # defines getAction and getDistribution
 
         if ghostpo[self.index-1] not in junctions:
             for r in route:
-                if ghostpo[other] == tuple(r):
+                if isinstance(ghostpo[other], tuple) and isinstance(r, tuple) and ghostpo[other] == tuple(r):
                     return self.PTPacman(state, pacpos, ghostpo[self.index-1], ghostpo[other]) #other chasing
             #print self.index, ghostpo[self.index-1], ghostpo[other], junctions, "junctions"
             return self.PTJunctions(state, junctions, ghostpo, pacpos) #go for junctions
@@ -82,20 +80,19 @@ class team4GhostAgents( Agent ): # defines getAction and getDistribution
                 route[x][y] = self.shortest_path(self.WallArray, junctions[y], ghostpos[x], pacpos, self.vectorToDirection(self.list, state, (x+1), 0))     #vectorToDirection(self, list, state, a, rev)
 
         if len(route) >= 2:
-            if len(route[i][0]) + len(route[o][1]) > len(route[i][1]) + len(route[o][0]):
-                return self.Return(state, route[i][1])
-            else: return self.Return(state, route[i][0])
+            if i < len(route) and o < len(route) and len(route[i]) > 1 and len(route[o]) > 1:
+                if len(route[i][0]) + len(route[o][1]) > len(route[i][1]) + len(route[o][0]):
+                    return self.Return(state, route[i][1])
+                else: return self.Return(state, route[i][0])
         return self.Return(state, route[0][0])
 
     def run_home(self, state, pacpos, ghostpos):
-
         route = self.shortest_path(self.WallArray, self.ghostStart[self.index - 1][0], ghostpos, pacpos, self.vectorToDirection(self.list, state, self.index, 0))
         if len(route) <= 1:
             return random.choice(state.getLegalActions(self.index))
         return self.Return(state, route)
 
     def PTPacman (self, state, pacpos, ghostpos, block):
-
         route = self.shortest_path(self.WallArray, pacpos, ghostpos, block, self.vectorToDirection(self.list, state, self.index, 0))
         return self.Return(state, route)
 
@@ -105,6 +102,9 @@ class team4GhostAgents( Agent ): # defines getAction and getDistribution
         neighbours.enqueue(start)
         counts = np.zeros((len(WallArray), len(WallArray[0])), dtype=int)
         predecessors = np.zeros((counts.shape[0], counts.shape[1], 2), dtype=int)  # 2D array storing the predecessors
+        print ('counts shape', counts.shape)
+        print ('start0',start[0])
+        print ('start1', start[1])
         counts[start[0], start[1]] = 1
 
         if block == start or block == end: block = (0,0)

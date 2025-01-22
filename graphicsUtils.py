@@ -201,7 +201,7 @@ def circle(pos, r, outlineColor, fillColor, endpoints=None, style='pieslice', wi
 import os
 
 
-def image(pos, id, file="../../blueghost.gif"):
+def image(pos, id, scaledRatio, file="../../blueghost.gif"):
     # x, y = pos
     # return _canvas.create_image(x, y, image=Tkinter.PhotoImage(file=file), anchor=Tkinter.NW)
     if not os.path.exists(file):
@@ -212,7 +212,7 @@ def image(pos, id, file="../../blueghost.gif"):
         img = image_dict[id]
     else:
         img = Tkinter.PhotoImage(file=file)  # Load the image
-        img = img.subsample(3, 3)
+        img = img.subsample(scaledRatio, scaledRatio)
         image_dict[id] = img
 
     image_id = _canvas.create_image(x, y, image=img)  # Create image on canvas

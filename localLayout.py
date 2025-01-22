@@ -1,4 +1,4 @@
-# layout.py
+# localLayout.py
 
 from util import manhattanDistance
 from game import Grid
@@ -17,6 +17,7 @@ class Layout:
         self.height= len(layoutText)
         self.walls = Grid(self.width, self.height, False)
         self.food = Grid(self.width, self.height, False)
+        self.fire = Grid(self.width, self.height, False)
         self.capsules = []
         self.agentPositions = []
         self.numGhosts = 0
@@ -83,7 +84,6 @@ class Layout:
     def processLayoutText(self, layoutText):
         """
         Coordinates are flipped from the input format to the (x,y) convention here
-
         The shape of the maze.  Each character
         represents a different type of object.
          % - Wall
@@ -91,6 +91,7 @@ class Layout:
          o - Capsule
          G - Ghost
          P - Pacman
+         F - Fire
         Other characters are ignored.
         """
         maxY = self.height - 1
@@ -106,6 +107,8 @@ class Layout:
             self.walls[x][y] = True
         elif layoutChar == '.':
             self.food[x][y] = True
+        elif layoutChar == 'F':
+            self.fire[x][y] = True
         elif layoutChar == 'o':
             self.capsules.append((x, y))
         elif layoutChar == 'P':
