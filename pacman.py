@@ -679,7 +679,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, alwaysSameMap, r
 
     for i in range(numGames):
         # Choose a layout
-
+        layoutstr=""
         if alwaysSameMap == False:
             layoutstr=random.choice(layouts)
             print('layout:', layoutstr)
@@ -703,13 +703,43 @@ def runGames(layout, pacman, ghosts, display, numGames, record, alwaysSameMap, r
         game.run()
         if not beQuiet: games.append(game)
 
+        #if record:
+        #    import time, cPickle
+        #    fname = ('recorded-game-%d' % (i + 1)) + '-'.join([str(t) for t in time.localtime()[1:6]])
+        #    f = file(fname, 'w')
+        #    components = {'layout': layout, 'actions': game.historyDrone1}
+        #    cPickle.dump(components, f)
+        #    f.close()
+        import time, cPickle
         if record:
-            import time, cPickle
-            fname = ('recorded-game-%d' % (i + 1)) + '-'.join([str(t) for t in time.localtime()[1:6]])
-            f = file(fname, 'w')
-            components = {'layout': layout, 'actions': game.moveHistory}
-            cPickle.dump(components, f)
-            f.close()
+            # Create a directory based on the layout name
+            layout_name = layoutstr #layout.strip().replace(' ', '_')  # Replace spaces with underscores if necessary
+            directory = os.path.join(os.getcwd()+'/logs', layout_name)
+
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+
+            # Save the components into the file
+            dict={
+                'Drone1': game.historyDrone1,
+                'Drone2': game.historyDrone2,
+                'Drone3': game.historyDrone3,
+                'Drone4': game.historyDrone4}
+
+            for obj in dict.items():
+                # Generate a timestamped filename
+                fname = obj[0]+'_recorded-game-%d-' % (i + 1) + '-'.join([str(t) for t in time.localtime()[1:6]]) + '.pkl'
+                # Full path for the file
+                file_path = os.path.join(directory, fname)
+                components = {'layout': layout, 'actions': obj[1]}
+                with open(file_path, 'w') as f:
+                    for index, value in enumerate(components['actions']):
+                        if isinstance(value, (list, tuple)):  # Handle nested lists or tuples
+                            f.write("Element {}: {}\n".format(index + 1, value))
+                        else:
+                            f.write("Element {}: {}\n".format(index + 1, value))
+                print "Data written to {}".format(file_path)
 
     if (numGames - numTraining) > 0:
         scores = [game.state.getScore() for game in games]
