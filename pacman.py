@@ -571,7 +571,7 @@ def readCommand(argv):
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
         if 'numTraining' not in agentOpts: agentOpts['numTraining'] = options.numTraining
-    pacman = pacmanType(**agentOpts)  # Instantiate Pacman with agentArgs
+    pacman = pacmanType(0)#**agentOpts)  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
     args['alwaysSameMap'] = options.alwaysSameMap
     args['randomizePositions'] = options.randomizePositions
