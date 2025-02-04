@@ -235,6 +235,8 @@ class PacmanGraphics:
 
         if newState._foodEaten != None:
             self.removeFood(newState._foodEaten, self.food)
+        if newState._fireEliminated!=None:
+            self.removeFire(newState._fireEliminated, self.fire)
         if newState._capsuleEaten != None:
             self.removeCapsule(newState._capsuleEaten, self.capsules)
         self.infoPane.updateScore(newState.score)
@@ -561,7 +563,9 @@ class PacmanGraphics:
     def removeFood(self, cell, foodImages ):
         x, y = cell
         remove_from_screen(foodImages[x][y])
-
+    def removeFire(self, cell, fireImage):
+        x, y = cell
+        remove_from_screen(fireImage[x][y])
     def removeCapsule(self, cell, capsuleImages ):
         x, y = cell
         remove_from_screen(capsuleImages[(x, y)])

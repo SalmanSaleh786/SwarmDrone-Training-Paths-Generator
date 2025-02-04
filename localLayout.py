@@ -20,7 +20,7 @@ class Layout:
         self.fire = Grid(self.width, self.height, False)
         self.capsules = []
         self.agentPositions = []
-        self.numGhosts = 0
+        self.numGhosts = 4
         self.processLayoutText(layoutText)
         self.layoutText = layoutText
         self.totalFood = len(self.food.asList())

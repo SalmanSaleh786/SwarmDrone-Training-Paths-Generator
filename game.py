@@ -384,6 +384,7 @@ class GameStateData:
             self.score = prevState.score
 
         self._foodEaten = None
+        self._fireEliminated=None
         self._foodAdded = None
         self._capsuleEaten = None
         self._agentMoved = None
@@ -398,6 +399,7 @@ class GameStateData:
         state.layout = self.layout.deepCopy()
         state._agentMoved = self._agentMoved
         state._foodEaten = self._foodEaten
+        state._fireEliminated=self._fireEliminated
         state._foodAdded = self._foodAdded
         state._capsuleEaten = self._capsuleEaten
         return state

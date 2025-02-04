@@ -168,7 +168,8 @@ class GameState:
 
     def getNumFood(self):
         return self.data.food.count()
-
+    def getNumFire(self):
+        return self.data.fire.count()
     def getFood(self):
         """
         Returns a Grid of boolean food indicator variables.
@@ -358,6 +359,17 @@ class PacmanRules:
 
     def consume(position, state):
         x, y = position
+        #Eliminate Fire
+        if state.data.fire[x][y]:
+            state.data.scoreChange += 1000
+            state.data.fire = state.data.fire.copy()
+            state.data.fire[x][y] = False
+            state.data._fireEliminated = position
+            # TODO: cache numFood?
+            numFire = state.getNumFire()
+            if numFire == 0 and not state.data._lose:
+                state.data.scoreChange += 500
+                state.data._win = True
         # Eat food
         if state.data.food[x][y]:
             state.data.scoreChange += 10
@@ -393,11 +405,11 @@ class GhostRules:
         """
         conf = state.getGhostState(ghostIndex).configuration
         possibleActions = Actions.getPossibleActions(conf, state.data.layout.walls)
-        reverse = Actions.reverseDirection(conf.direction)
-        if Directions.STOP in possibleActions:
-            possibleActions.remove(Directions.STOP)
-        if reverse in possibleActions and len(possibleActions) > 1:
-            possibleActions.remove(reverse)
+        #reverse = Actions.reverseDirection(conf.direction)
+        #if Directions.STOP in possibleActions:
+        #    possibleActions.remove(Directions.STOP)
+        #if reverse in possibleActions and len(possibleActions) > 1:
+       #     possibleActions.remove(reverse)
         return possibleActions
 
     getLegalActions = staticmethod(getLegalActions)
@@ -533,7 +545,7 @@ def readCommand(argv):
                       help=default('the ghost agent TYPE in the ghostAgents module to use'),
                       metavar='TYPE', default='RandomGhost')
     parser.add_option('-k', '--numghosts', type='int', dest='numGhosts',
-                      help=default('The maximum number of ghosts to use'), default=4)
+                      help=default('The maximum number of ghosts to use'), default=0)
     parser.add_option('-z', '--zoom', type='float', dest='zoom',
                       help=default('Zoom the size of the graphics window'), default=1.0)
     parser.add_option('-f', '--fixRandomSeed', action='store_true', dest='fixRandomSeed',
@@ -674,8 +686,9 @@ def runGames(layout, pacman, ghosts, display, numGames, record, alwaysSameMap, r
     # alwaysSameMap
     rules = ClassicGameRules(timeout)
     games = []
-    layouts = ['capsuleClassic','contestClassic', 'largeClassic', 'mediumClassic', 'minimaxClassic',
-               'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
+    layouts = ['mediumClassic']
+    #['capsuleClassic','contestClassic', 'largeClassic', 'mediumClassic', 'minimaxClassic',
+              # 'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
 
     for i in range(numGames):
         # Choose a layout
