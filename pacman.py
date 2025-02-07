@@ -585,6 +585,7 @@ def readCommand(argv):
         if 'numTraining' not in agentOpts: agentOpts['numTraining'] = options.numTraining
     pacman = pacmanType(0)#**agentOpts)  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
+    args['pacmanType']=pacmanType
     args['alwaysSameMap'] = options.alwaysSameMap
     args['randomizePositions'] = options.randomizePositions
     # Don't display training games
@@ -678,7 +679,7 @@ def shuffle_string(s):
     random.shuffle(chars)  # Shuffle the list of characters
     return ''.join(chars)  # Join the shuffled characters back into a string
 
-def runGames(layout, pacman, ghosts, display, numGames, record, alwaysSameMap, randomizePositions, numTraining=0,
+def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwaysSameMap, randomizePositions, numTraining=0,
              catchExceptions=False, timeout=30, ):
     import __main__
     __main__.__dict__['_display'] = display
@@ -686,9 +687,8 @@ def runGames(layout, pacman, ghosts, display, numGames, record, alwaysSameMap, r
     # alwaysSameMap
     rules = ClassicGameRules(timeout)
     games = []
-    layouts = ['mediumClassic']
-    #['capsuleClassic','contestClassic', 'largeClassic', 'mediumClassic', 'minimaxClassic',
-              # 'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
+    layouts = ['capsuleClassic','contestClassic', 'largeClassic', 'mediumClassic', 'minimaxClassic',
+               'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
 
     for i in range(numGames):
         # Choose a layout
@@ -711,6 +711,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, alwaysSameMap, r
         else:
             gameDisplay = display
             rules.quiet = False
+        pacman=pacmanType(0)
 
         game = rules.newGame(layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
         game.run()

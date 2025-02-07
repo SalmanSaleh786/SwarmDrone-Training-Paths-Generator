@@ -12,11 +12,11 @@ import util
 
 
 class CustomAgent():
-    def __init__(self, direction, pos, neighbours, visited, layoutText, layoutRowCol):
+    def __init__(self, direction, pos, visited, layoutText, layoutRowCol):
         self.direction = direction
         self.pos = pos
-        self.neighbours = []
-        self.neighbours.extend(neighbours)
+        #self.neighbours = []
+        #self.neighbours.extend(neighbours)
         self.visited = visited
         self.layoutText = layoutText
         self.layoutRowCol = layoutRowCol
@@ -62,7 +62,7 @@ class DFSAgents(Agent):
         currRow = int(length - currPos[1] - 1)
         currLayoutPos = (currRow, currCol)
         char = gameStateData.layout.layoutText[currRow][currCol]
-        agent = CustomAgent(Directions.STOP, currPos, (), False, char, currLayoutPos)
+        agent = CustomAgent(Directions.STOP, currPos, False, char, currLayoutPos)
         isVisited = currLayoutPos in self.visited
         if isVisited == False:
             agent.visited = True
@@ -70,28 +70,23 @@ class DFSAgents(Agent):
             neighbours = self.getAllNeighbours(currPos, currLayoutPos, gameStateData.layout)
             neighbours = self.getNewNeighbours(neighbours, self.visited)
             neighbours = self.choosePossibleNeighbour(neighbours, state)
+
             if len(neighbours) > 0:
                 for neighbor in neighbours:
                     if neighbor.layoutRowCol not in self.visited:
-                        agent.neighbours.append(neighbor)
-                self.stack.append(agent)
-            if len(neighbours) == 0:
-                currentAgent = self.stack.pop()
-                self.stack.extend(currentAgent.neighbours)
-                return self.getDirection(agent, currentAgent)
+                        self.stack.extend([agent, neighbor])
 
+                for neighbor in neighbours:
+                    if neighbor.layoutRowCol not in self.visited:
+                        self.stack.extend([agent, neighbor])
+        # if self.isEveryElementVisited(self.stack, self.visited):
+        #     return Directions.STOP
         if len(self.stack) > 0:
-            time.sleep(1)
-            currentAgent = self.stack.pop()
-            if len(currentAgent.neighbours) > 0:
-                if agent == currentAgent:
-                    currentAgent = currentAgent.neighbours.pop()
-                #self.stack.extend(currentAgent)
-                return self.getDirection(agent, currentAgent)
-            else:
-                return self.getDirection(agent, currentAgent)
+            newElement = self.stack.pop()
+            return self.getDirection(agent, newElement)
         return Directions.STOP
-
+    def isEveryElementVisited(self, stack, visitedStack):
+        return all(element in visitedStack for element in stack)
     def getNewNeighbours(self, neighbours, visited):
         return [neighbour for neighbour in neighbours if neighbour.layoutRowCol not in visited]
 
@@ -148,19 +143,19 @@ class DFSAgents(Agent):
         # Boundary checks before accessing indexes
         # Directions.STOP, currPos, (), False,  char,currLayoutPos
         if currCol > 0:  # LEFT
-            neighbours.append(CustomAgent(Directions.WEST, (currPos[0] - 1, currPos[1]), (), False,
+            neighbours.append(CustomAgent(Directions.WEST, (currPos[0] - 1, currPos[1]), False,
                                           layout.layoutText[currRow][currCol - 1], (currRow, currCol - 1)))
 
         if currRow > 0:  # TOP
-            neighbours.append(CustomAgent(Directions.NORTH, (currPos[0], currPos[1] - 1), (), False,
+            neighbours.append(CustomAgent(Directions.NORTH, (currPos[0], currPos[1] - 1), False,
                                           layout.layoutText[currRow - 1][currCol], (currRow - 1, currCol)))
 
         if currCol < len(layout.layoutText[currRow]) - 1:  # RIGHT
-            neighbours.append(CustomAgent(Directions.EAST, (currPos[0] + 1, currPos[1]), (), False,
+            neighbours.append(CustomAgent(Directions.EAST, (currPos[0] + 1, currPos[1]), False,
                                           layout.layoutText[currRow][currCol + 1], (currRow, currCol + 1)))
 
         if currRow < length - 1:  # BOTTOM
-            neighbours.append(CustomAgent(Directions.SOUTH, (currPos[0], currPos[1] + 1), (), False,
+            neighbours.append(CustomAgent(Directions.SOUTH, (currPos[0], currPos[1] + 1), False,
                                           layout.layoutText[currRow + 1][currCol], (currRow + 1, currCol)))
 
         return neighbours
@@ -168,6 +163,10 @@ class DFSAgents(Agent):
     # 0 - direction
     # 1 - LayoutText
     # 2 - Position
+    # def getFireNeighbours(self, neighbours):
+    #     filtered_neighbors = [n for n in neighbours if 'F' == n.layoutText]  # Store neighbors containing 'F'
+    #     neighbors = [n for n in neighbours if 'F' != n.layoutText]  # Remove them from the original list
+    #     return (filtered_neighbors, neighbors)
     def choosePossibleNeighbour(self, neighbours, state):
         # left, top, right, bottom
         # fireFound = any(neighbour[1] == 'F' for neighbour in neighbours)
@@ -194,6 +193,7 @@ class DFSAgents(Agent):
             isValidDir = any(neighbour.direction == legalDir for legalDir in legalDirections)
             if isValidDir:
                 finalOptions.append(neighbour)
+        finalOptions.sort(key=lambda n: 'F' in n.layoutText)
         return finalOptions
         #     if neighbour[2] in self.visited and neighbour[1] not in avoidArray:
         #         alreadyVisited.append(neighbour)
