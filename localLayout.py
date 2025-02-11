@@ -97,7 +97,10 @@ class Layout:
         maxY = self.height - 1
         for y in range(self.height):
             for x in range(self.width):
-                layoutChar = layoutText[maxY - y][x]
+                row=maxY-y
+                col=x
+                #if row>=0 and col>=0 and row<self.height-1 and col<self.width-1:
+                layoutChar = layoutText[row][col]
                 self.processLayoutChar(x, y, layoutChar)
         self.agentPositions.sort()
         self.agentPositions = [ ( i == 0, pos) for i, pos in self.agentPositions]

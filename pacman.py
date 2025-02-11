@@ -96,7 +96,7 @@ class GameState:
 
         # Let agent's logic deal with its action's effects on the board
         if agentIndex == 0:  # Pacman is moving
-            state.data._eaten = [False for i in range(state.getNumAgents())]
+            #state.data._eaten = [False for i in range(state.getNumAgents())]
             PacmanRules.applyAction(state, action)
         else:  # A ghost is moving
             GhostRules.applyAction(state, action, agentIndex)
@@ -104,11 +104,11 @@ class GameState:
         # Time passes
         if agentIndex == 0:
             state.data.scoreChange += -TIME_PENALTY  # Penalty for waiting around
-        else:
-            GhostRules.decrementTimer(state.data.agentStates[agentIndex])
+        #else:
+        #    GhostRules.decrementTimer(state.data.agentStates[agentIndex])
 
         # Resolve multi-agent effects
-        GhostRules.checkDeath(state, agentIndex)
+        #GhostRules.checkDeath(state, agentIndex)
 
         # Book keeping
         state.data._agentMoved = agentIndex
@@ -271,7 +271,7 @@ class ClassicGameRules:
     def newGame(self, layout, pacmanAgent, ghostAgents, display, quiet=False, catchExceptions=False):
         util.image_dict = {}
         agents = [pacmanAgent] + ghostAgents[:layout.getNumGhosts()]
-        initState = GameState()
+        initState = GameState(None)
         initState.initialize(layout, len(ghostAgents))
         game = Game(agents, display, self, catchExceptions=catchExceptions)
         game.state = initState
@@ -385,9 +385,9 @@ class PacmanRules:
         if (position in state.getCapsules()):
             state.data.capsules.remove(position)
             state.data._capsuleEaten = position
-            # Reset all ghosts' scared timers
-            for index in range(1, len(state.data.agentStates)):
-                state.data.agentStates[index].scaredTimer = SCARED_TIME
+            # # Reset all ghosts' scared timers
+            # for index in range(1, len(state.data.agentStates)):
+            #     state.data.agentStates[index].scaredTimer = SCARED_TIME
 
     consume = staticmethod(consume)
 
@@ -404,13 +404,16 @@ class GhostRules:
         reach a dead end, but can turn 90 degrees at intersections.
         """
         conf = state.getGhostState(ghostIndex).configuration
-        possibleActions = Actions.getPossibleActions(conf, state.data.layout.walls)
+        return Actions.getPossibleActions(conf, state.data.layout.walls)
+
+
+        #possibleActions = Actions.getPossibleActions(conf, state.data.layout.walls)
         #reverse = Actions.reverseDirection(conf.direction)
         #if Directions.STOP in possibleActions:
         #    possibleActions.remove(Directions.STOP)
         #if reverse in possibleActions and len(possibleActions) > 1:
        #     possibleActions.remove(reverse)
-        return possibleActions
+        #return possibleActions
 
     getLegalActions = staticmethod(getLegalActions)
 
@@ -421,11 +424,22 @@ class GhostRules:
             raise Exception("Illegal ghost action " + str(action))
 
         ghostState = state.data.agentStates[ghostIndex]
-        speed = GhostRules.GHOST_SPEED
-        if ghostState.scaredTimer > 0: speed /= 2.0
-        vector = Actions.directionToVector(action, speed)
+
+        # Update Configuration
+        vector = Actions.directionToVector(action, PacmanRules.PACMAN_SPEED)
         ghostState.configuration = ghostState.configuration.generateSuccessor(vector)
 
+        # Eat
+        next = ghostState.configuration.getPosition()
+        nearest = nearestPoint(next)
+        if manhattanDistance(nearest, next) <= 0.5:
+            # Remove food
+            PacmanRules.consume(nearest, state)
+        #
+        # speed = GhostRules.GHOST_SPEED
+        # if ghostState.scaredTimer > 0: speed /= 2.0
+        # vector = Actions.directionToVector(action, speed)
+        # ghostState.configuration = ghostState.configuration.generateSuccessor(vector)
     applyAction = staticmethod(applyAction)
 
     def decrementTimer(ghostState):
@@ -521,7 +535,7 @@ def readCommand(argv):
 
     parser.add_option('-l', '--layout', dest='layout',
                       help=default('the LAYOUT_FILE from which to load the map layout'),
-                      metavar='LAYOUT_FILE', default='mediumClassic')
+                      metavar='LAYOUT_FILE', default='smallClassic')
 
     parser.add_option('--alwaysSameMap', dest='alwaysSameMap',
                       action='store_true',
@@ -543,9 +557,9 @@ def readCommand(argv):
                       help='Generate minimal output and no graphics', default=False)
     parser.add_option('-g', '--ghosts', dest='ghost',
                       help=default('the ghost agent TYPE in the ghostAgents module to use'),
-                      metavar='TYPE', default='RandomGhost')
+                      metavar='TYPE', default='DFS')
     parser.add_option('-k', '--numghosts', type='int', dest='numGhosts',
-                      help=default('The maximum number of ghosts to use'), default=0)
+                      help=default('The maximum number of ghosts to use'), default=3)
     parser.add_option('-z', '--zoom', type='float', dest='zoom',
                       help=default('Zoom the size of the graphics window'), default=1.0)
     parser.add_option('-f', '--fixRandomSeed', action='store_true', dest='fixRandomSeed',
@@ -594,6 +608,7 @@ def readCommand(argv):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
+
     ghostType = loadAgent(options.ghost, noKeyboard)
     args['ghosts'] = [ghostType(i + 1) for i in range(options.numGhosts)]
 
@@ -612,6 +627,7 @@ def readCommand(argv):
     args['alwaysSameMap'] = options.alwaysSameMap
     args['randomizePositions'] = options.randomizePositions
     args['record'] = options.recordActions
+    #args['numGhosts'] = options.numGhosts
     args['catchExceptions'] = options.catchExceptions
     args['timeout'] = options.timeout
 
@@ -679,16 +695,15 @@ def shuffle_string(s):
     random.shuffle(chars)  # Shuffle the list of characters
     return ''.join(chars)  # Join the shuffled characters back into a string
 
-def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwaysSameMap, randomizePositions, numTraining=0,
-             catchExceptions=False, timeout=30, ):
+def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwaysSameMap, randomizePositions, numTraining=0, catchExceptions=False, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
     # randomizePositionss
     # alwaysSameMap
     rules = ClassicGameRules(timeout)
     games = []
-    layouts = ['capsuleClassic','contestClassic', 'largeClassic', 'mediumClassic', 'minimaxClassic',
-               'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
+    layouts = ['smallClassic','mediumClassic', 'largeClassic', 'contestClassic', 'minimaxClassic',
+                'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
 
     for i in range(numGames):
         # Choose a layout
@@ -713,7 +728,9 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
             rules.quiet = False
         pacman=pacmanType(0)
 
+        ghosts = [pacmanType(i + 1) for i in range(layout.getNumGhosts())]
         game = rules.newGame(layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
+
         game.run()
         if not beQuiet: games.append(game)
 
@@ -780,7 +797,4 @@ if __name__ == '__main__':
     """
     args = readCommand(sys.argv[1:])  # Get game components based on input
     runGames(**args)
-
-    # import cProfile
-    # cProfile.run("runGames( **args )")
     pass

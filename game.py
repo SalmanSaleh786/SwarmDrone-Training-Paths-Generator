@@ -113,7 +113,7 @@ class AgentState:
         self.scaredTimer = 0
         self.numCarrying = 0
         self.numReturned = 0
-        self.Battery=100
+        self.Battery = 100
 
     def __str__(self):
         if self.isPacman:
@@ -146,6 +146,7 @@ class AgentState:
 
     def getBattery(self):
         return self.Battery
+
 
 class Grid:
     """
@@ -379,18 +380,19 @@ class GameStateData:
             self.food = prevState.food.shallowCopy()
             self.capsules = prevState.capsules[:]
             self.agentStates = self.copyAgentStates(prevState.agentStates)
-            self.layout = prevState.layout
             self._eaten = prevState._eaten
             self.score = prevState.score
+            self.layout = prevState.layout.deepCopy()
 
         self._foodEaten = None
-        self._fireEliminated=None
+        self._fireEliminated = None
         self._foodAdded = None
         self._capsuleEaten = None
         self._agentMoved = None
         self._lose = False
         self._win = False
         self.scoreChange = 0
+
 
     def deepCopy(self):
         state = GameStateData(self)
@@ -399,7 +401,7 @@ class GameStateData:
         state.layout = self.layout.deepCopy()
         state._agentMoved = self._agentMoved
         state._foodEaten = self._foodEaten
-        state._fireEliminated=self._fireEliminated
+        state._fireEliminated = self._fireEliminated
         state._foodAdded = self._foodAdded
         state._capsuleEaten = self._capsuleEaten
         return state
@@ -499,7 +501,6 @@ class GameStateData:
         self.layout = layout
         self.score = 0
         self.scoreChange = 0
-
         self.agentStates = []
         numGhosts = 0
         for isPacman, pos in layout.agentPositions:
@@ -559,9 +560,10 @@ class Game:
         if list(layout.layoutText[currRow])[currCol] == 'F':
             return True
         return False
-    #To prefer new areas
+
+    # To prefer new areas
     def isFoodNearby(self, currPos, layout):
-        #go left, top, right, bottom
+        # go left, top, right, bottom
         corners = [False, False, False, False]
         length = len(layout.layoutText)
         currCol = int(currPos[0])
@@ -579,26 +581,27 @@ class Game:
         if list(layout.layoutText[currRow + 1])[currCol] == '.':
             corners[3] = True;
         return corners
+
     def findWallsAroundObject(self, currPos, layout):
-        corners=[False, False, False, False]
-        length=len(layout.layoutText)
-        currCol=int(currPos[0])
-        currRow=int(length-currPos[1]-1);
+        corners = [False, False, False, False]
+        length = len(layout.layoutText)
+        currCol = int(currPos[0])
+        currRow = int(length - currPos[1] - 1);
 
-
-        #LEFT
-        if list(layout.layoutText[currRow])[currCol-1] == '%':
-            corners[0]=True;
+        # LEFT
+        if list(layout.layoutText[currRow])[currCol - 1] == '%':
+            corners[0] = True;
         # TOP
-        if list(layout.layoutText[currRow-1])[currCol] == '%':
-            corners[1]=True;
+        if list(layout.layoutText[currRow - 1])[currCol] == '%':
+            corners[1] = True;
         # RIGHT
-        if list(layout.layoutText[currRow])[currCol+1] == '%':
-            corners[2]=True;
+        if list(layout.layoutText[currRow])[currCol + 1] == '%':
+            corners[2] = True;
         # BOTTOM
-        if list(layout.layoutText[currRow+1])[currCol] == '%':
-            corners[3]=True;
+        if list(layout.layoutText[currRow + 1])[currCol] == '%':
+            corners[3] = True;
         return corners
+
     def _agentCrash(self, agentIndex, quiet=False):
         "Helper method for handling agent crashes"
         if not quiet: traceback.print_exc()
@@ -634,7 +637,7 @@ class Game:
 
         from importlib import import_module
         importMod = import_module('pacman')
-        DynamicGameState = getattr(importMod, 'GameState') # Access MyClass dynamically
+        DynamicGameState = getattr(importMod, 'GameState')  # Access MyClass dynamically
 
         ###self.display.initialize(self.state.makeObservation(1).data)
         # inform learning agents of the game start
@@ -675,14 +678,14 @@ class Game:
 
         agentIndex = self.startingIndex
         numAgents = len(self.agents)
-
+        observation = DynamicGameState()  # Create an instance of MyClass
         while not self.gameOver:
             # Fetch the next agent
             agent = self.agents[agentIndex]
             move_time = 0
             skip_action = False
 
-            observation = DynamicGameState()  # Create an instance of MyClass
+
 
             # Generate an observation of the state
             if 'observationFunction' in dir(agent):
@@ -708,7 +711,6 @@ class Game:
             else:
                 observation = self.state.deepCopy()
 
-
             # Solicit an action
             action = None
             self.mute(agentIndex)
@@ -733,10 +735,10 @@ class Game:
                     if move_time > self.rules.getMoveWarningTime(agentIndex):
                         self.totalAgentTimeWarnings[agentIndex] += 1
                         print >> sys.stderr, "Agent %d took too long to make a move! This is warning %d" % (
-                        agentIndex, self.totalAgentTimeWarnings[agentIndex])
+                            agentIndex, self.totalAgentTimeWarnings[agentIndex])
                         if self.totalAgentTimeWarnings[agentIndex] > self.rules.getMaxTimeWarnings(agentIndex):
                             print >> sys.stderr, "Agent %d exceeded the maximum number of warnings: %d" % (
-                            agentIndex, self.totalAgentTimeWarnings[agentIndex])
+                                agentIndex, self.totalAgentTimeWarnings[agentIndex])
                             self.agentTimeout = True
                             self._agentCrash(agentIndex, quiet=True)
                             self.unmute()
@@ -746,7 +748,7 @@ class Game:
                     # print "Agent: %d, time: %f, total: %f" % (agentIndex, move_time, self.totalAgentTimes[agentIndex])
                     if self.totalAgentTimes[agentIndex] > self.rules.getMaxTotalTime(agentIndex):
                         print >> sys.stderr, "Agent %d ran out of time! (time: %1.2f)" % (
-                        agentIndex, self.totalAgentTimes[agentIndex])
+                            agentIndex, self.totalAgentTimes[agentIndex])
                         self.agentTimeout = True
                         self._agentCrash(agentIndex, quiet=True)
                         self.unmute()
@@ -761,28 +763,29 @@ class Game:
             self.unmute()
 
             # Execute the action
-            #if isinstance(observation, DynamicGameState):
+            # if isinstance(observation, DynamicGameState):
             #    print(observation.agentStates[0])  # Access variables
+            #print(observation)
             data = DynamicGameState(observation).data
-            #observation=(DynamicGameState)observation
-            currDronePos=data.agentStates[agentIndex].configuration.pos
-            wallCorners=self.findWallsAroundObject(currDronePos, data.layout);
-            history=(agentIndex,
-                     currDronePos,
-                     action,
-                     data.score,
-                     wallCorners,
-                     data.agentStates[agentIndex].getBattery(),
-                     self.isFireHere(currDronePos, data.layout),
-                     self.isFoodNearby(currDronePos, data.layout))
+            # observation=(DynamicGameState)observation
+            currDronePos = data.agentStates[agentIndex].configuration.pos
+            wallCorners = self.findWallsAroundObject(currDronePos, data.layout);
+            history = (agentIndex,
+                       currDronePos,
+                       action,
+                       data.score,
+                       wallCorners,
+                       data.agentStates[agentIndex].getBattery(),
+                       self.isFireHere(currDronePos, data.layout),
+                       self.isFoodNearby(currDronePos, data.layout))
 
-            if agentIndex == 1:
+            if agentIndex == 0:
                 self.historyDrone1.append(history)
-            if agentIndex == 2:
+            if agentIndex == 1:
                 self.historyDrone2.append(history)
-            if agentIndex == 3:
+            if agentIndex == 2:
                 self.historyDrone3.append(history)
-            if agentIndex == 4:
+            if agentIndex == 3:
                 self.historyDrone4.append(history)
 
             if self.catchExceptions:
@@ -824,5 +827,3 @@ class Game:
                     self.unmute()
                     return
         self.display.finish()
-
-

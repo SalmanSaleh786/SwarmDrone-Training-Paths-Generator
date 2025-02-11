@@ -191,7 +191,6 @@ class PacmanGraphics:
         layout = self.layout
         self.drawWalls(layout.walls)
         self.food = self.drawFood(layout.food)
-
         self.fire = self.drawFire(layout.fire)
         self.capsules = self.drawCapsules(layout.capsules)
         refresh()
@@ -201,10 +200,10 @@ class PacmanGraphics:
         for index, agent in enumerate(state.agentStates):
             if agent.isPacman:
                 image = self.drawPacman(agent, index)
-                self.agentImages.append( (agent, image) )
+                self.agentImages.append((agent, image))
             else:
                 image = self.drawGhost(agent, index)
-                self.agentImages.append( (agent, image) )
+                self.agentImages.append((agent, image))
         refresh()
 
     def swapImages(self, agentIndex, newState):
@@ -389,10 +388,10 @@ class PacmanGraphics:
         move_by(ghostImageParts, delta)
         refresh()
 
-        if ghost.scaredTimer > 0:
-            color = SCARED_COLOR
-        else:
-            color = GHOST_COLORS[ghostIndex]
+        # if ghost.scaredTimer > 0:
+        #     color = SCARED_COLOR
+        # else:
+        color = GHOST_COLORS[ghostIndex]
         #edit(ghostImageParts[0], ('fill', color), ('outline', color))
         #self.moveEyes(self.getPosition(ghost), self.getDirection(ghost), ghostImageParts[-4:])
         refresh()
