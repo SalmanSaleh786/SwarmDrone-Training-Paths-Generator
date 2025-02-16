@@ -583,22 +583,23 @@ class Game:
         return corners
 
     def findWallsAroundObject(self, currPos, layout):
+
         corners = [False, False, False, False]
         length = len(layout.layoutText)
         currCol = int(currPos[0])
         currRow = int(length - currPos[1] - 1);
 
         # LEFT
-        if list(layout.layoutText[currRow])[currCol - 1] == '%':
+        if currCol>0 and list(layout.layoutText[currRow])[currCol - 1] == '%':
             corners[0] = True;
         # TOP
-        if list(layout.layoutText[currRow - 1])[currCol] == '%':
+        if currRow>0 and list(layout.layoutText[currRow - 1])[currCol] == '%':
             corners[1] = True;
         # RIGHT
-        if list(layout.layoutText[currRow])[currCol + 1] == '%':
+        if currCol<len(layout.layoutText[currRow])-1 and list(layout.layoutText[currRow])[currCol + 1] == '%':
             corners[2] = True;
         # BOTTOM
-        if list(layout.layoutText[currRow + 1])[currCol] == '%':
+        if currRow<len(layout.layoutText)-1 and list(layout.layoutText[currRow + 1])[currCol] == '%':
             corners[3] = True;
         return corners
 
@@ -768,7 +769,9 @@ class Game:
             #print(observation)
             data = DynamicGameState(observation).data
             # observation=(DynamicGameState)observation
+
             currDronePos = data.agentStates[agentIndex].configuration.pos
+#            agent.findObject(currDronePos[0], currDronePos[1], walls, fires, foods, agentPositions)
             wallCorners = self.findWallsAroundObject(currDronePos, data.layout);
             history = (agentIndex,
                        currDronePos,

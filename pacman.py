@@ -535,7 +535,7 @@ def readCommand(argv):
 
     parser.add_option('-l', '--layout', dest='layout',
                       help=default('the LAYOUT_FILE from which to load the map layout'),
-                      metavar='LAYOUT_FILE', default='smallClassic')
+                      metavar='LAYOUT_FILE', default='contestClassic')
 
     parser.add_option('--alwaysSameMap', dest='alwaysSameMap',
                       action='store_true',
@@ -702,8 +702,9 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
     # alwaysSameMap
     rules = ClassicGameRules(timeout)
     games = []
-    layouts = ['smallClassic','mediumClassic', 'largeClassic', 'contestClassic', 'minimaxClassic',
-                'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
+    #layouts = ['smallClassic','mediumClassic', 'largeClassic', 'contestClassic', 'minimaxClassic',
+    #            'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
+    layouts = ['contestClassic', 'largeClassic', 'mediumClassic', 'mediumClassic1', 'trickyClassic']
 
     for i in range(numGames):
         # Choose a layout
