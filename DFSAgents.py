@@ -33,6 +33,7 @@ class CustomAgent():
 import time
 
 
+globalVisitedNodes = []
 class DFSAgents(Agent):
     def __init__(self, agentIdx):
         self.index = agentIdx
@@ -88,6 +89,10 @@ class DFSAgents(Agent):
         return neighbours
 
     def getAction(self, state):
+
+        global globalVisitedNodes  # Declare it as global inside the method
+
+
         gameStateData = state.data
         currPos = gameStateData.agentStates[self.index].configuration.pos
         fires = gameStateData.fire
@@ -106,6 +111,13 @@ class DFSAgents(Agent):
         for idx, agent in enumerate(gameStateData.agentStates):
             if idx != self.index:
                 allAgentPositions.append(agent.configuration.pos)
+            else:
+                gameStateData.agentStates[self.index].Battery-=2
+        if gameStateData.agentStates[self.index].Battery <=0:
+            print("Stopping agent " + str(self.index))
+            return Directions.STOP
+
+        globalVisitedNodes.append(currPos)
 
         agent = CustomAgent(Directions.STOP, currPos, False, 'G')
         isVisited = agent.neighPos in self.visited
@@ -117,18 +129,15 @@ class DFSAgents(Agent):
             neighbours = self.getNewNeighbours(neighbours, self.visited)
             neighbours = self.choosePossibleNeighbour(agent, neighbours, state, self.index)
             if len(neighbours) > 0:
-
                 for neighbor in neighbours:
                     if neighbor.neighPos not in self.visited:
                         self.stack.extend([agent, neighbor])
         if len(self.stack) > 0:
             newElement = self.stack.pop()
             if newElement.layoutText=='G':
-                #self.stack.pop()
                 newNeighbor=self.pickARandomNeighbour(agent, state, allAgentPositions, fires, foods, walls, currPos)
                 if newNeighbor!=None:
                     newElement=newNeighbor
-                    #self.stack.extend([agent, newNeighbor])
                 else:
                     return Directions.STOP
 
@@ -241,7 +250,6 @@ class DFSAgents(Agent):
     def choosePossibleNeighbour(self, agent, neighbours, state, index):
         avoidArray = ['%']#, 'P', 'G']
         noObstacleNeighbours = []
-        # alreadyVisited=[]
         for neighbour in neighbours:
             if neighbour.layoutText not in avoidArray:
                 noObstacleNeighbours.append(neighbour)
@@ -250,7 +258,6 @@ class DFSAgents(Agent):
             legalDirections = PacmanRules.getLegalActions(state)
         else:
             legalDirections = GhostRules.getLegalActions(state, index)
-
         finalOptions = []
         for neighbour in noObstacleNeighbours:
             isValidDir = any(self.getDirection(agent.neighPos, neighbour.neighPos) == legalDir
@@ -258,10 +265,20 @@ class DFSAgents(Agent):
             if isValidDir:
                 finalOptions.append(neighbour)
         random.shuffle(finalOptions)
+
+        global globalVisitedNodes
+
+        # Sort by whether neighPos is in globalVisitedNodes (visited nodes come first)
+        finalOptions.sort(key=lambda n: n.neighPos not in globalVisitedNodes)
+
+        finalOptions.sort(key=lambda n: '.' in n.layoutText)
         finalOptions.sort(key=lambda n: 'F' in n.layoutText)
-        #random.shuffle(finalOptions)
-        # sort neighbours which have F
+
+        #if finalOptions.Last!='F' and finalOptions.Last!='.':
+
+
         return finalOptions
+
     def getDistribution(self, state):
         "Returns a Counter encoding a distribution over actions from the provided state."
         util.raiseNotDefined()

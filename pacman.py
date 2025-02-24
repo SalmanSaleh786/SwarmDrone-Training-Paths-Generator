@@ -370,6 +370,7 @@ class PacmanRules:
             if numFire == 0 and not state.data._lose:
                 state.data.scoreChange += 500
                 state.data._win = True
+
         # Eat food
         if state.data.food[x][y]:
             state.data.scoreChange += 10
@@ -704,7 +705,10 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
     games = []
     #layouts = ['smallClassic','mediumClassic', 'largeClassic', 'contestClassic', 'minimaxClassic',
     #            'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
-    layouts = ['contestClassic', 'largeClassic', 'mediumClassic', 'mediumClassic1', 'trickyClassic']
+    layouts = ['contestClassic', 'largeClassic', 'mediumClassic', 'mediumClassic1', 'trickyClassic'
+               ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay','corrected_map_4.lay',
+                'corrected_map_5.lay', 'corrected_map_6.lay', 'corrected_map_7.lay', 'corrected_map_8.lay',
+                'corrected_map_9.lay','corrected_map_10.lay' ]
 
     for i in range(numGames):
         # Choose a layout
