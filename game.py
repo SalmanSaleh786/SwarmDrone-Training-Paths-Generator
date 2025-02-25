@@ -584,6 +584,32 @@ class Game:
             corners[3] = True;
         return corners
 
+    def objectsAroundCurrPos(self, currPos, layout):
+        corners = ['', '', '', '']
+        length = len(layout.layoutText)
+        currCol = int(currPos[0])
+        currRow = int(length - currPos[1] - 1);
+
+        # LEFT
+        if currCol > 0 :
+            corners[0] = list(layout.layoutText[currRow])[currCol - 1];
+        # TOP
+        if currRow > 0:
+            corners[1] = list(layout.layoutText[currRow - 1])[currCol];
+        # RIGHT
+        if currCol < len(layout.layoutText[currRow]) - 1:
+            corners[2] = list(layout.layoutText[currRow])[currCol + 1];
+        # BOTTOM
+        if currRow < len(layout.layoutText) - 1:
+            corners[3] = list(layout.layoutText[currRow + 1])[currCol];
+        return corners
+    def getOtherAgentPositions(self, currIdx, agents):
+        otherAgentPositions=[]
+        for i in range(len(agents)):
+            if i!=currIdx:
+                newAgent=agents[i]
+                otherAgentPositions.append(newAgent.configuration.pos)
+        return otherAgentPositions
     def findWallsAroundObject(self, currPos, layout):
         corners = [False, False, False, False]
         length = len(layout.layoutText)
@@ -761,24 +787,19 @@ class Game:
             data = DynamicGameState(observation).data
             currDronePos = data.agentStates[agentIndex].configuration.pos
             wallCorners = self.findWallsAroundObject(currDronePos, data.layout);
+            objectsAroundCurrPos=self.objectsAroundCurrPos(currDronePos, data.layout)
+            otherAgentPositions=self.getOtherAgentPositions(agentIndex, data.agentStates)
             history = (agentIndex,
                        currDronePos,
-                       action,
-                       data.score,
+                       objectsAroundCurrPos,
+                       otherAgentPositions,
                        wallCorners,
                        data.agentStates[agentIndex].getBattery(),
                        self.isFireHere(currDronePos, data.layout),
-                       self.isFoodNearby(currDronePos, data.layout)
+                       self.isFoodNearby(currDronePos, data.layout),
+                       data.score,
+                       action,
                        )
-
-            if agentIndex == 0:
-                self.historyDrone1.append(history)
-            if agentIndex == 1:
-                self.historyDrone2.append(history)
-            if agentIndex == 2:
-                self.historyDrone3.append(history)
-            if agentIndex == 3:
-                self.historyDrone4.append(history)
             self.state.data.agentStates[agentIndex].Battery=data.agentStates[agentIndex].Battery
             if self.catchExceptions:
                 try:
@@ -790,6 +811,19 @@ class Game:
                     return
             else:
                 self.state = self.state.generateSuccessor(agentIndex, action)
+
+            # Adding a new item (e.g., newData)
+            newData = self.state.data.agentStates[agentIndex].configuration.pos
+            history = history + (newData,)
+
+            if agentIndex == 0:
+                self.historyDrone1.append(history)
+            if agentIndex == 1:
+                self.historyDrone2.append(history)
+            if agentIndex == 2:
+                self.historyDrone3.append(history)
+            if agentIndex == 3:
+                self.historyDrone4.append(history)
 
             # Change the display
             self.display.update(self.state.data)

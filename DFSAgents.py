@@ -89,10 +89,7 @@ class DFSAgents(Agent):
         return neighbours
 
     def getAction(self, state):
-
         global globalVisitedNodes  # Declare it as global inside the method
-
-
         gameStateData = state.data
         currPos = gameStateData.agentStates[self.index].configuration.pos
         fires = gameStateData.fire

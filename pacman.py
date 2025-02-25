@@ -703,12 +703,12 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
     # alwaysSameMap
     rules = ClassicGameRules(timeout)
     games = []
-    #layouts = ['smallClassic','mediumClassic', 'largeClassic', 'contestClassic', 'minimaxClassic',
-    #            'openClassic' ,'originalClassic','trappedClassic','trickyClassic']
-    layouts = ['contestClassic', 'largeClassic', 'mediumClassic', 'mediumClassic1', 'trickyClassic'
+    layouts = ['contestClassic', 'mediumClassic', 'mediumClassic1', 'trickyClassic'
                ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay','corrected_map_4.lay',
                 'corrected_map_5.lay', 'corrected_map_6.lay', 'corrected_map_7.lay', 'corrected_map_8.lay',
-                'corrected_map_9.lay','corrected_map_10.lay' ]
+                'corrected_map_9.lay','corrected_map_10.lay', 'corrected_map_11.lay', 'corrected_map_12.lay' 
+               'corrected_map_13.lay', 'corrected_map_14.lay']
+    #'largeClassic'
 
     for i in range(numGames):
         # Choose a layout
