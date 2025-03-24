@@ -64,7 +64,7 @@ class GameState:
 
     # static variable keeps track of which states have had getLegalActions called
     explored = set()
-
+    gameNo = 0
     def getAndResetExplored():
         tmp = GameState.explored.copy()
         GameState.explored = set()
@@ -697,6 +697,7 @@ def shuffle_string(s):
     return ''.join(chars)  # Join the shuffled characters back into a string
 
 def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwaysSameMap, randomizePositions, numTraining=0, catchExceptions=False, timeout=30):
+
     import __main__
     __main__.__dict__['_display'] = display
     # randomizePositionss
@@ -704,17 +705,18 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
     rules = ClassicGameRules(timeout)
     games = []
     layouts = ['contestClassic', 'mediumClassic', 'mediumClassic1', 'trickyClassic'
-               ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay','corrected_map_4.lay',
-                'corrected_map_5.lay', 'corrected_map_6.lay', 'corrected_map_7.lay', 'corrected_map_8.lay',
-                'corrected_map_9.lay','corrected_map_10.lay', 'corrected_map_11.lay', 'corrected_map_12.lay' 
-               'corrected_map_13.lay', 'corrected_map_14.lay']
-    #'largeClassic'
-
+               ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay',
+                'corrected_map_5.lay', 'corrected_map_7.lay',
+               'corrected_map_12.lay','corrected_map_13.lay']
+    #'largeClassic' #'corrected_map_8.lay',#'corrected_map_6.lay'
+                #'corrected_map_9.lay','corrected_map_10.lay', 'corrected_map_11.lay', 'corrected_map_4.lay',
+    gameNo=0
     for i in range(numGames):
         # Choose a layout
+        gameNo=gameNo+1
         layoutstr=""
         if alwaysSameMap == False:
-            layoutstr=random.choice(layouts)
+            layoutstr=layouts[i%11]# random.choice(layouts)
             print('layout:', layoutstr)
             args['layout'] = localLayout.getLayout(layoutstr)
             layout = args['layout']
@@ -765,7 +767,7 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
 
             for obj in dict.items():
                 # Generate a timestamped filename
-                fname = obj[0]+'_recorded-game-%d-' % (i + 1) + '-'.join([str(t) for t in time.localtime()[1:6]]) + '.pkl'
+                fname = str(gameNo)+'_'+obj[0]+'_recorded-game-%d-' % (i + 1) + '-'.join([str(t) for t in time.localtime()[1:6]]) + '.txt'
                 # Full path for the file
                 file_path = os.path.join(directory, fname)
                 components = {'layout': layout, 'actions': obj[1]}

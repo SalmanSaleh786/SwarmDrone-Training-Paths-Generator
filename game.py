@@ -555,53 +555,60 @@ class Game:
         else:
             return self.rules.getProgress(self)
 
-    def isFireHere(self, currPos, layout):
-        length = len(layout.layoutText)
-        currCol = int(currPos[0])
-        currRow = int(length - currPos[1] - 1);
-        if list(layout.layoutText[currRow])[currCol] == 'F':
-            return True
-        return False
+    def isFireHere(self, currPos, fire):
+        x=currPos[0]
+        y=currPos[1]
+        return fire[x][y]
+        # length = len(layout.layoutText)
+        # currCol = int(currPos[0])
+        # currRow = int(length - currPos[1] - 1);
+        # if list(layout.layoutText[currRow])[currCol] == 'F':
+        #     return True
+        #return False
+    def isFoodNearby(self, currPos, layout, food):
 
-    # To prefer new areas
-    def isFoodNearby(self, currPos, layout):
-        # go left, top, right, bottom
         corners = [False, False, False, False]
-        length = len(layout.layoutText)
-        currCol = int(currPos[0])
-        currRow = int(length - currPos[1] - 1);
-        # LEFT
-        if currCol > 0 and list(layout.layoutText[currRow])[currCol - 1] == '.':
-            corners[0] = True;
-        # TOP
-        if currRow > 0 and list(layout.layoutText[currRow - 1])[currCol] == '.':
-            corners[1] = True;
-        # RIGHT
-        if currCol < len(layout.layoutText[currRow]) - 1 and list(layout.layoutText[currRow])[currCol + 1] == '.':
-            corners[2] = True;
-        # BOTTOM
-        if currRow < len(layout.layoutText) - 1 and list(layout.layoutText[currRow + 1])[currCol] == '.':
-            corners[3] = True;
+        x=currPos[0]
+        y=currPos[1]
+        maxY=layout.height
+        maxX=layout.width
+
+        if x > 0 and food[x-1][y]==True:  # Right
+            corners[0]=True
+        if y > 0 and food[x][y-1]==True:  # Bottom
+            corners[1]=True
+        if y < maxY - 1 and food[x][y+1]==True:  # Top
+            corners[2]=True
+        if x < maxX - 1 and food[x+1][y]==True:  # Left
+            corners[3]=True
         return corners
 
-    def objectsAroundCurrPos(self, currPos, layout):
+    def findObject(self, x, y, walls, fires, foods, agentPositions):
+        if fires.data[x][y] == True:
+            return 'F'
+        if foods.data[x][y] == True:
+            return '.'
+        if walls.data[x][y] == True:
+            return '%'
+        for agentPos in agentPositions:
+            if agentPos[0]==x and agentPos[1]==y:
+                return 'G'
+        return ''
+    def objectsAroundCurrPos(self, currPos, layout, walls, fires, foods, agentPositions):
         corners = ['', '', '', '']
-        length = len(layout.layoutText)
-        currCol = int(currPos[0])
-        currRow = int(length - currPos[1] - 1);
+        x=currPos[0]
+        y=currPos[1]
+        maxY = layout.height
+        maxX = layout.width
+        if x > 0: #Right
+            corners[0] = self.findObject(x - 1, y, walls, fires, foods, agentPositions)
+        if y > 0:  # Bottom
+            corners[1] = self.findObject(x, y - 1, walls, fires, foods, agentPositions)
+        if y < maxY - 1:  # Top
+            corners[2] = self.findObject(x, y + 1, walls, fires, foods, agentPositions)
+        if x < maxX - 1:  # Left
+            corners[3] = self.findObject(x + 1, y, walls, fires, foods, agentPositions)
 
-        # LEFT
-        if currCol > 0 :
-            corners[0] = list(layout.layoutText[currRow])[currCol - 1];
-        # TOP
-        if currRow > 0:
-            corners[1] = list(layout.layoutText[currRow - 1])[currCol];
-        # RIGHT
-        if currCol < len(layout.layoutText[currRow]) - 1:
-            corners[2] = list(layout.layoutText[currRow])[currCol + 1];
-        # BOTTOM
-        if currRow < len(layout.layoutText) - 1:
-            corners[3] = list(layout.layoutText[currRow + 1])[currCol];
         return corners
     def getOtherAgentPositions(self, currIdx, agents):
         otherAgentPositions=[]
@@ -610,24 +617,28 @@ class Game:
                 newAgent=agents[i]
                 otherAgentPositions.append(newAgent.configuration.pos)
         return otherAgentPositions
-    def findWallsAroundObject(self, currPos, layout):
+    def findWallsAroundObject(self, currPos, layout, walls, fires, foods, agentPositions):
         corners = [False, False, False, False]
-        length = len(layout.layoutText)
-        currCol = int(currPos[0])
-        currRow = int(length - currPos[1] - 1);
-
-        # LEFT
-        if currCol>0 and list(layout.layoutText[currRow])[currCol - 1] == '%':
-            corners[0] = True;
-        # TOP
-        if currRow>0 and list(layout.layoutText[currRow - 1])[currCol] == '%':
-            corners[1] = True;
-        # RIGHT
-        if currCol<len(layout.layoutText[currRow])-1 and list(layout.layoutText[currRow])[currCol + 1] == '%':
-            corners[2] = True;
-        # BOTTOM
-        if currRow<len(layout.layoutText)-1 and list(layout.layoutText[currRow + 1])[currCol] == '%':
-            corners[3] = True;
+        x = currPos[0]
+        y = currPos[1]
+        maxY = layout.height
+        maxX = layout.width
+        if x > 0:  # Right
+            obj = self.findObject(x - 1, y, walls, fires, foods, agentPositions)
+            if obj=='%':
+                corners[0]=True
+        if y > 0:  # Bottom
+            obj = self.findObject(x, y - 1, walls, fires, foods, agentPositions)
+            if obj=='%':
+                corners[1]=True
+        if y < maxY - 1:  # Top
+            obj = self.findObject(x, y + 1, walls, fires, foods, agentPositions)
+            if obj=='%':
+                corners[2]=True
+        if x < maxX - 1:  # Left
+            obj = self.findObject(x + 1, y, walls, fires, foods, agentPositions)
+            if obj=='%':
+                corners[3]=True
         return corners
 
     def _agentCrash(self, agentIndex, quiet=False):
@@ -785,9 +796,13 @@ class Game:
                 action = agent.getAction(observation)
             self.unmute()
             data = DynamicGameState(observation).data
+            agentPositions = []
+            for idx, agent in enumerate(data.agentStates):
+                if idx != agentIndex:
+                    agentPositions.append(agent.configuration.pos)
             currDronePos = data.agentStates[agentIndex].configuration.pos
-            wallCorners = self.findWallsAroundObject(currDronePos, data.layout);
-            objectsAroundCurrPos=self.objectsAroundCurrPos(currDronePos, data.layout)
+            wallCorners = self.findWallsAroundObject(currDronePos, data.layout, data.layout.walls, data.fire, data.food, agentPositions);
+            objectsAroundCurrPos=self.objectsAroundCurrPos(currDronePos, data.layout, data.layout.walls, data.fire, data.food, agentPositions)
             otherAgentPositions=self.getOtherAgentPositions(agentIndex, data.agentStates)
             history = (agentIndex,
                        currDronePos,
@@ -795,8 +810,8 @@ class Game:
                        otherAgentPositions,
                        wallCorners,
                        data.agentStates[agentIndex].getBattery(),
-                       self.isFireHere(currDronePos, data.layout),
-                       self.isFoodNearby(currDronePos, data.layout),
+                       self.isFireHere(currDronePos, data.fire),
+                       self.isFoodNearby(currDronePos, data.layout, data.food),
                        data.score,
                        action,
                        )

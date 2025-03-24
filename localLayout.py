@@ -12,9 +12,42 @@ class Layout:
     A Layout manages the static information about the game board.
     """
 
+
+    def randomizePositions(self, layoutText):
+        maxY = self.height - 1
+        possiblePositions = []
+
+        # Convert layoutText (list of strings) to list of lists for mutability
+        layoutText = [list(row) for row in layoutText]
+
+        for y in range(self.height):
+            for x in range(self.width):
+                row = maxY - y
+                col = x
+                layoutChar = layoutText[row][col]
+
+                if layoutChar == 'G' or layoutChar == 'P':
+                    layoutText[row][col] = '.'  # Modify safely
+                elif layoutChar == '.':
+                    possiblePositions.append((row, col))
+
+        for i in range(4):
+            # Get a random index
+            random_index = random.randrange(len(possiblePositions))
+            # Remove and store the tuple
+            removed_tuple = possiblePositions.pop(random_index)
+
+            layoutText[removed_tuple[0]][removed_tuple[1]] = 'G'
+            if i == 3:
+                layoutText[removed_tuple[0]][removed_tuple[1]] = 'P'
+
+        # Convert the list of lists back to a list of strings
+        return ["".join(row) for row in layoutText]
     def __init__(self, layoutText):
+
         self.width = len(layoutText[0])
         self.height= len(layoutText)
+        layoutText=self.randomizePositions(layoutText)
         self.walls = Grid(self.width, self.height, False)
         self.food = Grid(self.width, self.height, False)
         self.fire = Grid(self.width, self.height, False)

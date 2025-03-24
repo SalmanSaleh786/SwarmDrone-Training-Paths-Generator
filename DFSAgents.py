@@ -12,26 +12,19 @@ import util
 
 
 class CustomAgent():
-
     def __init__(self, direction, neighPos, visited, layoutText):
         self.direction = direction
         self.neighPos = neighPos
         self.visited = visited
         self.layoutText = layoutText
-
     # Check if an object with a specific element exists
     def exists_in_stack(self, stack, target_element):
         return any(obj.pos == target_element.pos for obj in stack)
-
     def find_index_in_stack(self, stack, target_element):
         for index, obj in enumerate(stack):
             if obj.pos == target_element.pos:
                 return index  # Return the index when found
         return -1  # Return -1 if not found
-
-
-import time
-
 
 globalVisitedNodes = []
 class DFSAgents(Agent):
@@ -88,6 +81,9 @@ class DFSAgents(Agent):
 
         return neighbours
 
+
+
+
     def getAction(self, state):
         global globalVisitedNodes  # Declare it as global inside the method
         gameStateData = state.data
@@ -132,7 +128,7 @@ class DFSAgents(Agent):
         if len(self.stack) > 0:
             newElement = self.stack.pop()
             if newElement.layoutText=='G':
-                newNeighbor=self.pickARandomNeighbour(agent, state, allAgentPositions, fires, foods, walls, currPos)
+                newNeighbor=self.pickANewNeighbour(agent, state, allAgentPositions, fires, foods, walls, currPos)
                 if newNeighbor!=None:
                     newElement=newNeighbor
                 else:
@@ -151,7 +147,7 @@ class DFSAgents(Agent):
             self.visited=set()
         return Directions.STOP
 
-    def pickARandomNeighbour(self, agent, state, allAgentPositions, fires, foods, walls, currPos):
+    def pickANewNeighbour(self, agent, state, allAgentPositions, fires, foods, walls, currPos):
         neighbours = self.getAllNeighbours(state.data.layout.height, state.data.layout.width,
                                            allAgentPositions, fires, foods, walls, currPos[0], currPos[1])
         neighbours = self.choosePossibleNeighbour(agent, neighbours, state, self.index)
@@ -245,7 +241,7 @@ class DFSAgents(Agent):
     #     return (filtered_neighbors, neighbors)
     import random
     def choosePossibleNeighbour(self, agent, neighbours, state, index):
-        avoidArray = ['%']#, 'P', 'G']
+        avoidArray = ['%', 'P', 'G']
         noObstacleNeighbours = []
         for neighbour in neighbours:
             if neighbour.layoutText not in avoidArray:
@@ -261,7 +257,7 @@ class DFSAgents(Agent):
                              for legalDir in legalDirections)
             if isValidDir:
                 finalOptions.append(neighbour)
-        random.shuffle(finalOptions)
+        #random.shuffle(finalOptions)
 
         global globalVisitedNodes
 
