@@ -92,13 +92,13 @@ class DFSAgents(Agent):
         foods = gameStateData.food
         walls = gameStateData.layout.walls
 
-        for element in self.stack:
-            if element.layoutText == 'G':
-                element.layoutText = ''
-
-        for element in self.stack:
-             if any(agent.configuration.pos == element.neighPos for agent in gameStateData.agentStates):
-                 element.layoutText = 'G'
+        # for element in self.stack:
+        #     if element.layoutText == 'G':
+        #         element.layoutText = ''
+        #
+        # for element in self.stack:
+        #      if any(agent.configuration.pos == element.neighPos for agent in gameStateData.agentStates):
+        #          element.layoutText = 'G'
 
         allAgentPositions=[]
         for idx, agent in enumerate(gameStateData.agentStates):
@@ -127,7 +127,7 @@ class DFSAgents(Agent):
                         self.stack.extend([agent, neighbor])
         if len(self.stack) > 0:
             newElement = self.stack.pop()
-            if newElement.layoutText=='G':
+            if newElement.neighPos in allAgentPositions:
                 newNeighbor=self.pickANewNeighbour(agent, state, allAgentPositions, fires, foods, walls, currPos)
                 if newNeighbor!=None:
                     newElement=newNeighbor
@@ -241,6 +241,7 @@ class DFSAgents(Agent):
     #     return (filtered_neighbors, neighbors)
     import random
     def choosePossibleNeighbour(self, agent, neighbours, state, index):
+
         avoidArray = ['%', 'P', 'G']
         noObstacleNeighbours = []
         for neighbour in neighbours:

@@ -710,8 +710,10 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                'corrected_map_12.lay','corrected_map_13.lay']
     #'largeClassic' #'corrected_map_8.lay',#'corrected_map_6.lay'
                 #'corrected_map_9.lay','corrected_map_10.lay', 'corrected_map_11.lay', 'corrected_map_4.lay',
-    gameNo=0
+    gameNo=20000
     for i in range(numGames):
+        import gc
+        gc.collect()
         # Choose a layout
         gameNo=gameNo+1
         layoutstr=""
