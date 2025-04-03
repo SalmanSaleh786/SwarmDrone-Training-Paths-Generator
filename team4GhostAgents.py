@@ -24,7 +24,7 @@ class team4GhostAgents( Agent ): # defines getAction and getDistribution
     def __init__( self, index ):
         self.index = index
 
-    def getAction( self, state ):
+    def getAction( self, state, data ):
         if self.first:
             self.first = False
             self.WallsGrid = state.getWalls()
@@ -62,7 +62,7 @@ class team4GhostAgents( Agent ): # defines getAction and getDistribution
         else:
             for r in route:
                 if ghostpo[other] == tuple(r):
-                    print self.index, ghostpo[self.index-1], pacpos, "other chasing"
+                    print (self.index, ghostpo[self.index-1], pacpos, "other chasing")
                     return self.PTPacman(state, pacpos, ghostpo[self.index-1], ghostpo[other]) #other chasing
             list(junctions).remove(ghostpo[self.index-1])
             return self.PTPacman(state, pacpos, ghostpo[self.index-1], junctions[0])

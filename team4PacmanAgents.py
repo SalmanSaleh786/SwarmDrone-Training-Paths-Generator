@@ -21,7 +21,7 @@ class team4PacmanAgents(game.Agent):
     ticksCapsules = 0
     list = [['East', (1, 0)], ['South', (0, -1)], ['West', (-1, 0)], ['North', (0, 1)], ['Stop', (0, 0)]] # used to convert directions into movement vectors
 
-    def getAction(self, state):
+    def getAction(self, state, data):
 
         if self.first:
             self.first = False

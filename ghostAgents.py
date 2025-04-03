@@ -11,7 +11,7 @@ class GhostAgent( Agent ):
     def __init__( self, index ):
         self.index = index
 
-    def getAction( self, state ):
+    def getAction( self, state, data ):
         dist = self.getDistribution(state)
         if len(dist) == 0:
             return Directions.STOP

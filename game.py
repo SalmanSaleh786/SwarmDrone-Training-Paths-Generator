@@ -1,9 +1,10 @@
 # game.py
+import torch
+
 from util import *
 import time, os
 import traceback
 import sys
-
 
 #######################
 # Parts worth reading #
@@ -20,7 +21,7 @@ class Agent:
     def __init__(self, index=0):
         self.index = index
 
-    def getAction(self, state):
+    def getAction(self, state, data):
         """
         The Agent will receive a GameState (from either {pacman, capture, sonar}.py) and
         must return an action from Directions.{North, South, East, West, Stop}
@@ -255,7 +256,7 @@ class Grid:
 
     def _unpackInt(self, packed, size):
         bools = []
-        if packed < 0: raise ValueError, "must be a positive integer"
+        if packed < 0: raise ValueError("must be a positive integer")
         for i in range(size):
             n = 2 ** (self.CELLS_PER_INT - i - 1)
             if packed >= n:
@@ -433,8 +434,8 @@ class GameStateData:
         for i, state in enumerate(self.agentStates):
             try:
                 int(hash(state))
-            except TypeError, e:
-                print e
+            except TypeError as e:
+                print (e)
                 # hash(state)
         return int((hash(tuple(self.agentStates)) + 13 * hash(self.food) + 113 * hash(tuple(self.capsules)) + 7 * hash(
             self.score)) % 1048575)
@@ -546,8 +547,9 @@ class Game:
         self.totalAgentTimes = [0 for agent in agents]
         self.totalAgentTimeWarnings = [0 for agent in agents]
         self.agentTimeout = False
-        import cStringIO
-        self.agentOutput = [cStringIO.StringIO() for agent in agents]
+        import io
+
+        self.agentOutput = [io.StringIO() for agent in agents]
 
     def getProgress(self):
         if self.gameOver:
@@ -654,7 +656,7 @@ class Game:
     def mute(self, agentIndex):
         if not self.muteAgents: return
         global OLD_STDOUT, OLD_STDERR
-        import cStringIO
+        #import cStringIO
         OLD_STDOUT = sys.stdout
         OLD_STDERR = sys.stderr
         sys.stdout = self.agentOutput[agentIndex]
@@ -680,6 +682,15 @@ class Game:
 
         ###self.display.initialize(self.state.makeObservation(1).data)
         # inform learning agents of the game start
+
+
+        #from model import DroneGNN  # Import your trained model
+
+        from DroneGNNClass import DroneGNN
+        model = DroneGNN()
+        model.load_state_dict(torch.load("drone_gnn_model.pth"))
+        model.eval()  # Set model to evaluation mode
+
         for i in range(len(self.agents)):
             agent = self.agents[i]
             if not agent:
@@ -706,7 +717,7 @@ class Game:
                             self.agentTimeout = True
                             self._agentCrash(i, quiet=True)
                             return
-                    except Exception, data:
+                    except Exception as data:
                         self._agentCrash(i, quiet=False)
                         self.unmute()
                         return
@@ -740,7 +751,7 @@ class Game:
                             skip_action = True
                         move_time += time.time() - start_time
                         self.unmute()
-                    except Exception, data:
+                    except Exception as data:
                         self._agentCrash(agentIndex, quiet=False)
                         self.unmute()
                         return
@@ -788,12 +799,12 @@ class Game:
                         self.unmute()
                         return
                     self.unmute()
-                except Exception, data:
+                except Exception as data:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
             else:
-                action = agent.getAction(observation)
+                action = agent.getAction(observation, None)
             self.unmute()
             data = DynamicGameState(observation).data
             agentPositions = []
@@ -819,7 +830,7 @@ class Game:
             if self.catchExceptions:
                 try:
                     self.state = self.state.generateSuccessor(agentIndex, action)
-                except Exception, data:
+                except Exception as data:
                     self.mute(agentIndex)
                     self._agentCrash(agentIndex)
                     self.unmute()
@@ -881,7 +892,7 @@ class Game:
                     self.mute(agentIndex)
                     agent.final(self.state)
                     self.unmute()
-                except Exception, data:
+                except Exception as data:
                     if not self.catchExceptions: raise
                     self._agentCrash(agentIndex)
                     self.unmute()

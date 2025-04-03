@@ -10,7 +10,7 @@ class MyGhostAgent( Agent ):
     def __init__( self, index ):
         self.index = index
 
-    def getAction( self, state ):
+    def getAction( self, state, data ):
         action_list = state.getLegalActions( self.index )
         return action_list[0]
 

@@ -5,7 +5,7 @@ from game import Agent
 
 class MyPacmanAgent(Agent):
 
-    def getAction(self, state):
+    def getAction(self, state, data):
         return Directions.STOP
 
 
