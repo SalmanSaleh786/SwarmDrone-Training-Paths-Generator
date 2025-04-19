@@ -1,10 +1,8 @@
-# game.py
-import torch
-
 from util import *
 import time, os
 import traceback
 import sys
+
 
 #######################
 # Parts worth reading #
@@ -35,6 +33,9 @@ class Directions:
     EAST = 'East'
     WEST = 'West'
     STOP = 'Stop'
+
+    def __getitem__(self, item):
+        return getattr(self, item.upper())
 
     LEFT = {NORTH: WEST,
             SOUTH: EAST,
@@ -136,7 +137,7 @@ class AgentState:
         state.scaredTimer = self.scaredTimer
         state.numCarrying = self.numCarrying
         state.numReturned = self.numReturned
-        state.Battery=self.Battery
+        state.Battery = self.Battery
         return state
 
     def getPosition(self):
@@ -395,7 +396,6 @@ class GameStateData:
         self._win = False
         self.scoreChange = 0
 
-
     def deepCopy(self):
         state = GameStateData(self)
         state.food = self.food.deepCopy()
@@ -558,31 +558,32 @@ class Game:
             return self.rules.getProgress(self)
 
     def isFireHere(self, currPos, fire):
-        x=currPos[0]
-        y=currPos[1]
+        x = currPos[0]
+        y = currPos[1]
         return fire[x][y]
         # length = len(layout.layoutText)
         # currCol = int(currPos[0])
         # currRow = int(length - currPos[1] - 1);
         # if list(layout.layoutText[currRow])[currCol] == 'F':
         #     return True
-        #return False
+        # return False
+
     def isFoodNearby(self, currPos, layout, food):
 
         corners = [False, False, False, False]
-        x=currPos[0]
-        y=currPos[1]
-        maxY=layout.height
-        maxX=layout.width
+        x = currPos[0]
+        y = currPos[1]
+        maxY = layout.height
+        maxX = layout.width
 
-        if x > 0 and food[x-1][y]==True:  # Right
-            corners[0]=True
-        if y > 0 and food[x][y-1]==True:  # Bottom
-            corners[1]=True
-        if y < maxY - 1 and food[x][y+1]==True:  # Top
-            corners[2]=True
-        if x < maxX - 1 and food[x+1][y]==True:  # Left
-            corners[3]=True
+        if x > 0 and food[x - 1][y] == True:  # Right
+            corners[0] = True
+        if y > 0 and food[x][y - 1] == True:  # Bottom
+            corners[1] = True
+        if y < maxY - 1 and food[x][y + 1] == True:  # Top
+            corners[2] = True
+        if x < maxX - 1 and food[x + 1][y] == True:  # Left
+            corners[3] = True
         return corners
 
     def findObject(self, x, y, walls, fires, foods, agentPositions):
@@ -593,16 +594,17 @@ class Game:
         if walls.data[x][y] == True:
             return '%'
         for agentPos in agentPositions:
-            if agentPos[0]==x and agentPos[1]==y:
+            if agentPos[0] == x and agentPos[1] == y:
                 return 'G'
         return ''
+
     def objectsAroundCurrPos(self, currPos, layout, walls, fires, foods, agentPositions):
         corners = ['', '', '', '']
-        x=currPos[0]
-        y=currPos[1]
+        x = currPos[0]
+        y = currPos[1]
         maxY = layout.height
         maxX = layout.width
-        if x > 0: #Right
+        if x > 0:  # Right
             corners[0] = self.findObject(x - 1, y, walls, fires, foods, agentPositions)
         if y > 0:  # Bottom
             corners[1] = self.findObject(x, y - 1, walls, fires, foods, agentPositions)
@@ -612,13 +614,15 @@ class Game:
             corners[3] = self.findObject(x + 1, y, walls, fires, foods, agentPositions)
 
         return corners
+
     def getOtherAgentPositions(self, currIdx, agents):
-        otherAgentPositions=[]
+        otherAgentPositions = []
         for i in range(len(agents)):
-            if i!=currIdx:
-                newAgent=agents[i]
+            if i != currIdx:
+                newAgent = agents[i]
                 otherAgentPositions.append(newAgent.configuration.pos)
         return otherAgentPositions
+
     def findWallsAroundObject(self, currPos, layout, walls, fires, foods, agentPositions):
         corners = [False, False, False, False]
         x = currPos[0]
@@ -627,20 +631,20 @@ class Game:
         maxX = layout.width
         if x > 0:  # Right
             obj = self.findObject(x - 1, y, walls, fires, foods, agentPositions)
-            if obj=='%':
-                corners[0]=True
+            if obj == '%':
+                corners[0] = True
         if y > 0:  # Bottom
             obj = self.findObject(x, y - 1, walls, fires, foods, agentPositions)
-            if obj=='%':
-                corners[1]=True
+            if obj == '%':
+                corners[1] = True
         if y < maxY - 1:  # Top
             obj = self.findObject(x, y + 1, walls, fires, foods, agentPositions)
-            if obj=='%':
-                corners[2]=True
+            if obj == '%':
+                corners[2] = True
         if x < maxX - 1:  # Left
             obj = self.findObject(x + 1, y, walls, fires, foods, agentPositions)
-            if obj=='%':
-                corners[3]=True
+            if obj == '%':
+                corners[3] = True
         return corners
 
     def _agentCrash(self, agentIndex, quiet=False):
@@ -656,7 +660,7 @@ class Game:
     def mute(self, agentIndex):
         if not self.muteAgents: return
         global OLD_STDOUT, OLD_STDERR
-        #import cStringIO
+        # import cStringIO
         OLD_STDOUT = sys.stdout
         OLD_STDERR = sys.stderr
         sys.stdout = self.agentOutput[agentIndex]
@@ -682,14 +686,6 @@ class Game:
 
         ###self.display.initialize(self.state.makeObservation(1).data)
         # inform learning agents of the game start
-
-
-        #from model import DroneGNN  # Import your trained model
-
-        from DroneGNNClass import DroneGNN
-        model = DroneGNN()
-        model.load_state_dict(torch.load("drone_gnn_model.pth"))
-        model.eval()  # Set model to evaluation mode
 
         for i in range(len(self.agents)):
             agent = self.agents[i]
@@ -730,8 +726,8 @@ class Game:
         numAgents = len(self.agents)
         observation = DynamicGameState()  # Create an instance of MyClass
         while not self.gameOver:
-            if self.state.data._lose == True or self.state.data._win==True:
-                self.gameOver=True
+            if self.state.data._lose == True or self.state.data._win == True:
+                self.gameOver = True
                 break
             # Fetch the next agent
             agent = self.agents[agentIndex]
@@ -803,8 +799,8 @@ class Game:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
-            else:
-                action = agent.getAction(observation, None)
+            #  else:
+            #       action = agent.getAction(observation, None)
             self.unmute()
             data = DynamicGameState(observation).data
             agentPositions = []
@@ -812,9 +808,11 @@ class Game:
                 if idx != agentIndex:
                     agentPositions.append(agent.configuration.pos)
             currDronePos = data.agentStates[agentIndex].configuration.pos
-            wallCorners = self.findWallsAroundObject(currDronePos, data.layout, data.layout.walls, data.fire, data.food, agentPositions);
-            objectsAroundCurrPos=self.objectsAroundCurrPos(currDronePos, data.layout, data.layout.walls, data.fire, data.food, agentPositions)
-            otherAgentPositions=self.getOtherAgentPositions(agentIndex, data.agentStates)
+            wallCorners = self.findWallsAroundObject(currDronePos, data.layout, data.layout.walls, data.fire, data.food,
+                                                     agentPositions);
+            objectsAroundCurrPos = self.objectsAroundCurrPos(currDronePos, data.layout, data.layout.walls, data.fire,
+                                                             data.food, agentPositions)
+            otherAgentPositions = self.getOtherAgentPositions(agentIndex, data.agentStates)
             history = (agentIndex,
                        currDronePos,
                        objectsAroundCurrPos,
@@ -826,17 +824,20 @@ class Game:
                        data.score,
                        action,
                        )
-            self.state.data.agentStates[agentIndex].Battery=data.agentStates[agentIndex].Battery
-            if self.catchExceptions:
-                try:
+            self.state.data.agentStates[agentIndex].Battery = data.agentStates[agentIndex].Battery
+            if self.catchExceptions == False:
+                opts=(agentIndex, self.historyDrone1, self.historyDrone2, self.historyDrone3, self.historyDrone4)
+                action = self.agents[agentIndex].getAction(observation, opts)
+                if self.catchExceptions:
+                    try:
+                        self.state = self.state.generateSuccessor(agentIndex, action)
+                    except Exception as data:
+                        self.mute(agentIndex)
+                        self._agentCrash(agentIndex)
+                        self.unmute()
+                        return
+                else:
                     self.state = self.state.generateSuccessor(agentIndex, action)
-                except Exception as data:
-                    self.mute(agentIndex)
-                    self._agentCrash(agentIndex)
-                    self.unmute()
-                    return
-            else:
-                self.state = self.state.generateSuccessor(agentIndex, action)
 
             # Adding a new item (e.g., newData)
             newData = self.state.data.agentStates[agentIndex].configuration.pos
@@ -856,15 +857,15 @@ class Game:
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)
 
-            batteryGreaterThanZero=False
+            batteryGreaterThanZero = False
             for agent in data.agentStates:
-                if agent.Battery>0:
-                    batteryGreaterThanZero=True
+                if agent.Battery > 0:
+                    batteryGreaterThanZero = True
                     break
 
-            if batteryGreaterThanZero==False:
+            if batteryGreaterThanZero == False:
                 print('Lost Game')
-                self.state.data._lose=True
+                self.state.data._lose = True
                 # #0# -> GAME Lost
                 self.historyDrone1.append('#0#')
                 self.historyDrone2.append('#0#')
