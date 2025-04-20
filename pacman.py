@@ -715,7 +715,7 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay',
                 'corrected_map_5.lay', 'corrected_map_7.lay',
                'corrected_map_12.lay','corrected_map_13.lay']
-    gameNo=80000
+    gameNo=100000
     for i in range(numGames):
         import gc
         gc.collect()
