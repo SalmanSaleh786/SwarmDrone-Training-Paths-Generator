@@ -813,7 +813,8 @@ class Game:
             objectsAroundCurrPos = self.objectsAroundCurrPos(currDronePos, data.layout, data.layout.walls, data.fire,
                                                              data.food, agentPositions)
             otherAgentPositions = self.getOtherAgentPositions(agentIndex, data.agentStates)
-            history = (agentIndex,
+            history = (
+                        agentIndex,
                        currDronePos,
                        objectsAroundCurrPos,
                        otherAgentPositions,

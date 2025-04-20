@@ -28,8 +28,7 @@ To play your first game, type 'python pacman.py' from the command line.
 The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
 """
 #from GNNAgents import GNNAgents
-from game import GameStateData
-from game import Game
+from game import Game, GameStateData
 from game import Directions
 from game import Actions
 from util import nearestPoint
@@ -341,7 +340,11 @@ class PacmanRules:
         """
         legal = PacmanRules.getLegalActions(state)
         if action not in legal:
-            raise Exception("Illegal action " + str(action))
+
+            print("Illegal action " + str(action))
+            action = random.choice(legal)
+
+            #raise Exception("Illegal action " + str(action))
 
         pacmanState = state.data.agentStates[0]
 
@@ -423,7 +426,10 @@ class GhostRules:
 
         legal = GhostRules.getLegalActions(state, ghostIndex)
         if action not in legal:
-            raise Exception("Illegal ghost action " + str(action))
+            print("Illegal ghost action " + str(action))
+            action = random.choice(legal)
+        # if action not in legal:
+        #     raise Exception("Illegal ghost action " + str(action))
 
         ghostState = state.data.agentStates[ghostIndex]
 
@@ -709,8 +715,6 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay',
                 'corrected_map_5.lay', 'corrected_map_7.lay',
                'corrected_map_12.lay','corrected_map_13.lay']
-    #'largeClassic' #'corrected_map_8.lay',#'corrected_map_6.lay'
-                #'corrected_map_9.lay','corrected_map_10.lay', 'corrected_map_11.lay', 'corrected_map_4.lay',
     gameNo=80000
     for i in range(numGames):
         import gc

@@ -30,12 +30,10 @@ class GNNAgents(Agent):
         gameStateData = state.data
         currPos = gameStateData.agentStates[self.index].configuration.pos
         GNNAgents.client.send(data)
-
         bytes_received = GNNAgents.client.recv_bytes()
         replyPos = pickle.loads(bytes_received)
         print("Received from server:", replyPos)
         return getattr(Directions, replyPos.upper(), Directions.STOP)
-
 #        return Directions[replyPos]
 
     def recvall(sock, n):
