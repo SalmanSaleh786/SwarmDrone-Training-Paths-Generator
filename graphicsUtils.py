@@ -6,7 +6,7 @@ import random
 import string
 import time
 import types
-import tkinter
+import Tkinter
 
 _Windows = sys.platform == 'win32'  # True if on Win95/98/NT
 
@@ -61,14 +61,14 @@ def begin_graphics(width=640, height=480, color=formatColor(0, 0, 0), title=None
     _bg_color = color
 
     # Create the root window
-    _root_window = tkinter.Tk()
+    _root_window = Tkinter.Tk()
     _root_window.protocol('WM_DELETE_WINDOW', _destroy_window)
     _root_window.title(title or 'Graphics Window')
     _root_window.resizable(0, 0)
     _root_window.state('iconic')
     # Create the canvas object
     try:
-        _canvas = tkinter.Canvas(_root_window, width=width, height=height)
+        _canvas = Tkinter.Canvas(_root_window, width=width, height=height)
         _canvas.pack()
         draw_background()
         _canvas.update()
@@ -149,8 +149,8 @@ def end_graphics():
             sleep(1)
             if _root_window != None:
                 _root_window.destroy()
-        except SystemExit as e:
-            print ('Ending graphics raised an exception:', e)
+        except SystemExit, e:
+            print 'Ending graphics raised an exception:', e
     finally:
         _root_window = None
         _canvas = None
@@ -211,7 +211,7 @@ def image(pos, id, scaledRatio, file="../../blueghost.gif"):
     if id in image_dict:
         img = image_dict[id]
     else:
-        img = tkinter.PhotoImage(file=file)  # Load the image
+        img = Tkinter.PhotoImage(file=file)  # Load the image
         img = img.subsample(scaledRatio, scaledRatio)
         image_dict[id] = img
 
@@ -256,45 +256,34 @@ def moveObject(id, pos, shape='circle', r=0, endpoints=None):
     #     pass
 
 
-import tkinter
-
-
-def move_to(obj, x, y=None):
-    """Moves the given object in a Tkinter Canvas."""
-
-    # Ensure the event loop processes
-    tkinter._default_root.update_idletasks()
-
-    # Handle coordinate unpacking if y is None
+def move_to(object, x, y=None,
+            d_o_e=Tkinter.tkinter.dooneevent,
+            d_w=Tkinter.tkinter.DONT_WAIT):
     if y is None:
         try:
-            x, y = x  # Unpack tuple
-        except TypeError:
-            raise ValueError("Invalid coordinates: Expected (x, y) tuple")
+            x, y = x
+        except:
+            raise ValueError("incomprehensible coordinates")
 
-    # Get the canvas where the object exists
-    canvas = obj.master  # Assuming the object is a Tkinter widget
-
-    # Get current position
-    coords = canvas.coords(obj)
-    if not coords:
-        raise ValueError("Object has no coordinates")
-
-    current_x, current_y = coords[:2]  # First point
-
-    # Calculate new coordinates
-    new_coords = []
     horiz = True
-    for coord in coords:
-        inc = (x - current_x) if horiz else (y - current_y)
-        new_coords.append(coord + inc)
+    newCoords = []
+    current_x, current_y = _canvas.coords(object)[0:2]  # first point
+
+    # For each coordinate in the current object, calculate the new position
+    for coord in _canvas.coords(object):
+        if horiz:
+            inc = x - current_x
+        else:
+            inc = y - current_y
         horiz = not horiz
 
-    # Update object position
-    canvas.coords(obj, *new_coords)
+        newCoords.append(coord + inc)
 
-    # Process pending events without blocking
-    canvas.update_idletasks()
+    # Update the object's coordinates
+    _canvas.coords(object, *newCoords)
+
+    # Ensure the event loop processes
+    d_o_e(d_w)
 
 
 def moveCircle(id, pos, r, endpoints=None):
@@ -395,8 +384,8 @@ def _clear_keys(event=None):
     _got_release = None
 
 
-def keys_pressed(d_o_e=tkinter.tkinter.dooneevent,
-                 d_w=tkinter.tkinter.DONT_WAIT):
+def keys_pressed(d_o_e=Tkinter.tkinter.dooneevent,
+                 d_w=Tkinter.tkinter.DONT_WAIT):
     d_o_e(d_w)
     if _got_release:
         d_o_e(d_w)
@@ -421,8 +410,8 @@ def wait_for_keys():
 
 
 def remove_from_screen(x,
-                       d_o_e=tkinter.tkinter.dooneevent,
-                       d_w=tkinter.tkinter.DONT_WAIT):
+                       d_o_e=Tkinter.tkinter.dooneevent,
+                       d_w=Tkinter.tkinter.DONT_WAIT):
     _canvas.delete(x)
     d_o_e(d_w)
 
@@ -457,13 +446,13 @@ def _adjust_coords(coord_list, x, y):
 #     d_o_e(d_w)
 
 def move_by(object, x, y=None,
-            d_o_e=tkinter.tkinter.dooneevent,
-            d_w=tkinter.tkinter.DONT_WAIT, lift=False):
+            d_o_e=Tkinter.tkinter.dooneevent,
+            d_w=Tkinter.tkinter.DONT_WAIT, lift=False):
     if y is None:
         try:
             x, y = x
         except:
-            raise Exception('incomprehensible coordinates')
+            raise Exception, 'incomprehensible coordinates'
 
     horiz = True
     newCoords = []
@@ -483,13 +472,12 @@ def move_by(object, x, y=None,
 
 
 def writePostscript(filename):
-    return
-#    "Writes the current canvas to a postscript file."
-#    psfile = file(filename, 'w')
-#    psfile.write(_canvas.postscript(pageanchor='sw',
-#                                    y='0.c',
-#                                    x='0.c'))
- #   psfile.close()
+    "Writes the current canvas to a postscript file."
+    psfile = file(filename, 'w')
+    psfile.write(_canvas.postscript(pageanchor='sw',
+                                    y='0.c',
+                                    x='0.c'))
+    psfile.close()
 
 
 ghost_shape = [

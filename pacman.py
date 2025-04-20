@@ -27,8 +27,8 @@ code to run a game.  This file is divided into three sections:
 To play your first game, type 'python pacman.py' from the command line.
 The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
 """
-from game import GameStateData
-from game import Game
+#from GNNAgents import GNNAgents
+from game import Game, GameStateData
 from game import Directions
 from game import Actions
 from util import nearestPoint
@@ -340,7 +340,11 @@ class PacmanRules:
         """
         legal = PacmanRules.getLegalActions(state)
         if action not in legal:
-            raise Exception("Illegal action " + str(action))
+
+            print("Illegal action " + str(action))
+            action = random.choice(legal)
+
+            #raise Exception("Illegal action " + str(action))
 
         pacmanState = state.data.agentStates[0]
 
@@ -422,7 +426,10 @@ class GhostRules:
 
         legal = GhostRules.getLegalActions(state, ghostIndex)
         if action not in legal:
-            raise Exception("Illegal ghost action " + str(action))
+            print("Illegal ghost action " + str(action))
+            action = random.choice(legal)
+        # if action not in legal:
+        #     raise Exception("Illegal ghost action " + str(action))
 
         ghostState = state.data.agentStates[ghostIndex]
 
@@ -708,9 +715,7 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay',
                 'corrected_map_5.lay', 'corrected_map_7.lay',
                'corrected_map_12.lay','corrected_map_13.lay']
-    #'largeClassic' #'corrected_map_8.lay',#'corrected_map_6.lay'
-                #'corrected_map_9.lay','corrected_map_10.lay', 'corrected_map_11.lay', 'corrected_map_4.lay',
-    gameNo=75000
+    gameNo=100000
     for i in range(numGames):
         import gc
         gc.collect()
@@ -739,8 +744,12 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
 
         ghosts = [pacmanType(i + 1) for i in range(layout.getNumGhosts())]
         game = rules.newGame(layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
-
         game.run()
+        import GNNAgents
+        for agent in game.agents:
+            if isinstance(agent, GNNAgents):
+                agent.client.close()  # assuming client has a close() method
+
         if not beQuiet: games.append(game)
 
         #if record:
@@ -781,6 +790,8 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                             f.write("Element {}: {}\n".format(index + 1, value))
                 print ("Data written to {}".format(file_path))
 
+
+
     if (numGames - numTraining) > 0:
         scores = [game.state.getScore() for game in games]
         wins = [game.state.isWin() for game in games]
@@ -794,6 +805,8 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
 
 
 if __name__ == '__main__':
+    import pydevd_pycharm
+    pydevd_pycharm.settrace('localhost', port=12346, stdoutToServer=True, stderrToServer=True, suspend=False)
     """
     The main function called when pacman.py is run
     from the command line:
