@@ -715,7 +715,7 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay',
                 'corrected_map_5.lay', 'corrected_map_7.lay',
                'corrected_map_12.lay','corrected_map_13.lay']
-    gameNo=100000
+    gameNo=150100
     for i in range(numGames):
         import gc
         gc.collect()
@@ -746,9 +746,10 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
         game = rules.newGame(layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
         game.run()
         import GNNAgents
-        for agent in game.agents:
-            if isinstance(agent, GNNAgents):
-                agent.client.close()  # assuming client has a close() method
+        if isinstance(pacman, GNNAgents.GNNAgents):
+            for agent in game.agents:
+                if isinstance(agent, GNNAgents):
+                    agent.client.close()  # assuming client has a close() method
 
         if not beQuiet: games.append(game)
 

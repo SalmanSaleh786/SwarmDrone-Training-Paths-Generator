@@ -34,7 +34,6 @@ class GNNAgents(Agent):
         replyPos = pickle.loads(bytes_received)
         print("Received from server:", replyPos)
         return getattr(Directions, replyPos.upper(), Directions.STOP)
-#        return Directions[replyPos]
 
     def recvall(sock, n):
         """Receive exactly n bytes from the socket"""
