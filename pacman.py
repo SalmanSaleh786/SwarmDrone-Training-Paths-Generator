@@ -342,7 +342,7 @@ class PacmanRules:
         if action not in legal:
 
             print("Illegal action " + str(action))
-            action = random.choice(legal)
+            action = 'Stop'
 
             #raise Exception("Illegal action " + str(action))
 
@@ -427,7 +427,7 @@ class GhostRules:
         legal = GhostRules.getLegalActions(state, ghostIndex)
         if action not in legal:
             print("Illegal ghost action " + str(action))
-            action = random.choice(legal)
+            action = 'Stop'
         # if action not in legal:
         #     raise Exception("Illegal ghost action " + str(action))
 
