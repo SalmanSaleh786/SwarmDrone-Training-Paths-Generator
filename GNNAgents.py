@@ -7,7 +7,7 @@ from multiprocessing.connection import Listener, Client
 import pickle
 import struct
 class GNNAgents(Agent):
-    client = Client(('localhost', 6000), authkey=b'password')
+    #client = Client(('localhost', 6000), authkey=b'password')
 
     def __init__(self, agentIdx):
         print ('Creating GNN Agent')
@@ -27,11 +27,17 @@ class GNNAgents(Agent):
         return Directions.STOP
 
     def getAction(self, state, data):
+        import time
+        start = time.time()
+
+
         gameStateData = state.data
         currPos = gameStateData.agentStates[self.index].configuration.pos
         GNNAgents.client.send(data)
         bytes_received = GNNAgents.client.recv_bytes()
         replyPos = pickle.loads(bytes_received)
+        elapsed = time.time() - start
+        print('time'+str(elapsed))
         print("Received from server:", replyPos)
         return getattr(Directions, replyPos.upper(), Directions.STOP)
 

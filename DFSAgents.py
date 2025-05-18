@@ -85,6 +85,7 @@ class DFSAgents(Agent):
 
 
     def getAction(self, state, data):
+
         global globalVisitedNodes  # Declare it as global inside the method
         gameStateData = state.data
         currPos = gameStateData.agentStates[self.index].configuration.pos
@@ -125,6 +126,7 @@ class DFSAgents(Agent):
                 for neighbor in neighbours:
                     if neighbor.neighPos not in self.visited:
                         self.stack.extend([agent, neighbor])
+
         if len(self.stack) > 0:
             newElement = self.stack.pop()
             if newElement.neighPos in allAgentPositions:

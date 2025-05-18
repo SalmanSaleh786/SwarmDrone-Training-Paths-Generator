@@ -679,7 +679,8 @@ class Game:
         """
         self.display.initialize(self.state.data)
         self.numMoves = 0
-
+        import matplotlib.pyplot as plt
+        execution_times = []
         from importlib import import_module
         importMod = import_module('pacman')
         DynamicGameState = getattr(importMod, 'GameState')  # Access MyClass dynamically
@@ -828,7 +829,13 @@ class Game:
             self.state.data.agentStates[agentIndex].Battery = data.agentStates[agentIndex].Battery
             if self.catchExceptions == False:
                 opts=(agentIndex, self.historyDrone1, self.historyDrone2, self.historyDrone3, self.historyDrone4)
+                import time
+                start = time.time()
                 action = self.agents[agentIndex].getAction(observation, opts)
+                elapsed = time.time() - start
+                print('time' + str(elapsed))
+                execution_times.append(elapsed)
+
                 if self.catchExceptions:
                     try:
                         self.state = self.state.generateSuccessor(agentIndex, action)
@@ -872,6 +879,14 @@ class Game:
                 self.historyDrone2.append('#0#')
                 self.historyDrone3.append('#0#')
                 self.historyDrone4.append('#0#')
+                # Plotting the execution time
+                # plt.figure(figsize=(10, 5))
+                # plt.plot(execution_times, marker='o', linestyle='-', color='b')
+                # plt.xlabel('Step')
+                # plt.ylabel('Execution Time (seconds)')
+                # plt.title('getAction Execution Time per Step')
+                # plt.grid(True)
+                # plt.show()
             if self.state.isWin():
                 print('Won Game')
                 # #1# -> GAME Won
@@ -879,6 +894,14 @@ class Game:
                 self.historyDrone2.append('#1#')
                 self.historyDrone3.append('#1#')
                 self.historyDrone4.append('#1#')
+                # # Plotting the execution time
+                # plt.figure(figsize=(10, 5))
+                # plt.plot(execution_times, marker='o', linestyle='-', color='b')
+                # plt.xlabel('Step')
+                # plt.ylabel('Execution Time (seconds)')
+                # plt.title('getAction Execution Time per Step')
+                # plt.grid(True)
+                # plt.show()
             # Track progress
             if agentIndex == numAgents + 1: self.numMoves += 1
             # Next agent

@@ -324,8 +324,10 @@ class PacmanRules:
     These functions govern how pacman interacts with his environment under
     the classic game rules.
     """
-    PACMAN_SPEED = 1
 
+
+    PACMAN_SPEED = 1
+    count=0
     def getLegalActions(state):
         """
         Returns a list of possible actions.
@@ -340,7 +342,8 @@ class PacmanRules:
         """
         legal = PacmanRules.getLegalActions(state)
         if action not in legal:
-
+            PacmanRules.count=PacmanRules.count+1
+            print('count pacman:'+str(PacmanRules.count))
             print("Illegal action " + str(action))
             action = 'Stop'
 
@@ -402,7 +405,7 @@ class GhostRules:
     These functions dictate how ghosts interact with their environment.
     """
     GHOST_SPEED = 1.0
-
+    count=0
     def getLegalActions(state, ghostIndex):
         """
         Ghosts cannot stop, and cannot turn around unless they
@@ -426,6 +429,8 @@ class GhostRules:
 
         legal = GhostRules.getLegalActions(state, ghostIndex)
         if action not in legal:
+            GhostRules.count = GhostRules.count + 1
+            print('count ghost:' + str(GhostRules.count))
             print("Illegal ghost action " + str(action))
             action = 'Stop'
         # if action not in legal:
@@ -715,7 +720,7 @@ def runGames(layout, pacman, pacmanType, ghosts, display, numGames, record, alwa
                ,'corrected_map_1.lay','corrected_map_2.lay','corrected_map_3.lay',
                 'corrected_map_5.lay', 'corrected_map_7.lay',
                'corrected_map_12.lay','corrected_map_13.lay']
-    gameNo=150100
+    gameNo=190100
     for i in range(numGames):
         import gc
         gc.collect()
